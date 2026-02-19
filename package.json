@@ -1,6 +1,20 @@
 {
+  "name": "quest-store",
+  "version": "1.0.0",
+  "description": "uraragaga",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js -e ejs,js,css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Besthings/quest-store.git"
+  },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
+    "ejs": "^4.0.1",
     "express": "^5.2.1",
     "init": "^0.1.2",
     "sequelize": "^6.37.7",
@@ -8,18 +22,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
-  },
-  "name": "quest-store",
-  "version": "1.0.0",
-  "description": "uraragaga",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Besthings/quest-store.git"
   },
   "keywords": [],
   "author": "",

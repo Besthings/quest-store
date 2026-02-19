@@ -1,8 +1,14 @@
-const Sequelize = require('sequelize')
+const {Sequelize, DataTypes} = require('sequelize')
 const path = require('path')
-require('dotenv').config()
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: path.resolve(process.env.DB_PATH)
+  storage: path.resolve(__dirname, '..', 'database', 'database.sqlite')
 });
+
+const Users = require('./usersModel')(sequelize, DataTypes)
+
+module.exports = {
+  sequelize,
+  Users
+}
