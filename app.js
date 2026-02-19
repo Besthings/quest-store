@@ -15,13 +15,15 @@ app.set('view engine', 'ejs')
 app.set('views', './src/views')
 
 // Routes
-const usersRoute = require('./src/routes/usersRoute')
+const usersRoute = require('./src/routes/api/usersRoute')
+const pagesRoute = require('./src/routes/pagesRoute')
+
+// API
 app.use('/api/v1/users', usersRoute)
 
-// Home Page
-app.get('/', (req, res) => {
-    res.render('index')
-})
+//
+app.use('/', pagesRoute)
+
 
 // Start Server
 const PORT = process.env.PORT || 3000

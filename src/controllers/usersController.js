@@ -46,7 +46,7 @@ const login = async (req, res) => {
 const getAllUser = async (req, res) => {
     try {
         const users = await Users.findAll({
-            attributes: ['id', 'username', 'email', 'role', 'createdAt', 'updatedAt'],
+            attributes: { exclude: ['password'] },
             order: [['id', 'ASC']]
         });
         res.status(200).json(users)
@@ -58,7 +58,7 @@ const getAllUser = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const user = await Users.findByPk(req.params.id, {
-            attributes: ['id', 'username', 'email', 'role', 'createdAt', 'updatedAt']
+            attributes: { exclude: ['password'] }
         })
         if (!user) return res.status(404).json({ error: 'Not found user' })
         res.status(200).json({ message: 'Retrived user', user })
