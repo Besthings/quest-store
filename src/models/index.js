@@ -7,8 +7,10 @@ const sequelize = new Sequelize({
 });
 
 const Users = require('./usersModel')(sequelize, DataTypes)
+const Categories = require('./categorysModel')(sequelize, DataTypes)
 
 module.exports = {
   sequelize,
-  Users
+  Users,
+  Categories
 }
