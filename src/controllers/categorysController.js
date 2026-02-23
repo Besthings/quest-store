@@ -1,4 +1,4 @@
-const { Users, Categories } = require('../models')
+const { Categories } = require('../models')
 
 
 const createCategory = async (req, res) => {
