@@ -47,3 +47,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+function showLogin() {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const registerBtn = document.getElementById("registerBtn");
+
+    if (loginForm && registerForm) {
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+    }
+
+    if (loginBtn && registerBtn) {
+        loginBtn.classList.add("border-indigo-600","text-indigo-600");
+        registerBtn.classList.remove("border-indigo-600","text-indigo-600");
+    }
+}
+
+function showRegister() {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const registerBtn = document.getElementById("registerBtn");
+
+    if (loginForm && registerForm) {
+        registerForm.classList.remove("hidden");
+        loginForm.classList.add("hidden");
+    }
+
+    if (loginBtn && registerBtn) {
+        registerBtn.classList.add("border-indigo-600","text-indigo-600");
+        loginBtn.classList.remove("border-indigo-600","text-indigo-600");
+    }
+}
