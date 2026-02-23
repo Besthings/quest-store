@@ -67,9 +67,18 @@
 
             <div class="mb-4">
                 <label class="block mb-1">Password</label>
-                <input type="password"
+                 <input 
+                    type="password"
+                    id="regPassword"
                     class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     placeholder="Enter Password">
+
+                <div class="text-sm mt-2 space-y-1">
+                    <p id="length" class="text-red-500">• At least 8 characters</p>
+                    <p id="uppercase" class="text-red-500">• At least 1 uppercase letter</p>
+                    <p id="lowercase" class="text-red-500">• At least 1 lowercase letter</p>
+                    <p id="number" class="text-red-500">• At least 1 number</p>
+                </div>
             </div>
 
             <button 
