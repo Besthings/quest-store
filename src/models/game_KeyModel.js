@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Game_Key = sequelize.define('Game_Key', {
+    const game_Key = sequelize.define('Game_Key', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -33,5 +33,5 @@ module.exports = (sequelize, DataTypes) => {
     });
 
 
-    return Game_Key
+    return game_Key
 }
