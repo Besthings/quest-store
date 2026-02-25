@@ -9,16 +9,7 @@
 
 <body class="bg-gray-900 text-white">
 
-<!-- Navbar -->
-<nav class="bg-gray-800 shadow-lg">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-indigo-400">THE GAME STORE</h1>
-        <div class="space-x-4">
-            <a href="/dashboard" class="hover:text-indigo-400">Dashboard</a>
-            <a href="/login" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">Logout</a>
-        </div>
-    </div>
-</nav>
+<%- include('partials/header') %>
 
 <div class="max-w-7xl mx-auto px-6 py-10">
 
@@ -79,31 +70,9 @@
 
 </div>
 
-<script>
-function searchGames() {
-    let input = document.getElementById("searchInput").value.toLowerCase();
-    let cards = document.querySelectorAll(".game-card");
+<script src="/js/allgame.js"></script>
 
-    cards.forEach(card => {
-        let name = card.dataset.name.toLowerCase();
-        card.style.display = name.includes(input) ? "block" : "none";
-    });
-}
-
-function filterCategory() {
-    let selected = document.getElementById("categoryFilter").value;
-    let cards = document.querySelectorAll(".game-card");
-
-    cards.forEach(card => {
-        let category = card.dataset.category;
-        if(selected === "all" || category === selected) {
-            card.style.display = "block";
-        } else {
-            card.style.display = "none";
-        }
-    });
-}
-</script>
+<%- include('partials/footer') %>
 
 </body>
 </html>
