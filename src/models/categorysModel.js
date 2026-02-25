@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true
     })
 
+    Category.hasMany(Game, {
+        foreignKey: 'category_id',
+        as: 'games'
+    });
     
     return Categories
 }

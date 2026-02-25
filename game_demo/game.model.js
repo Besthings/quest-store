@@ -42,9 +42,20 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         }
         
+        
     }, {
         timestamps: true
     })
+
+    Game.belongsTo(Category, {
+        foreignKey: 'category_id',
+        as: 'category'
+    });
+
+    Game.hasMany(GameKey, {
+        foreignKey: 'game_id',
+        as: 'game_keys'
+    });
 
     
     
