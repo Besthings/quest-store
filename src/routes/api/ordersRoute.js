@@ -4,7 +4,7 @@ const ordersController = require('../../controllers/ordersController')
 const { authenticate, authorize } = require('../../middleware/authMiddleware')
 
 router.post('/', authenticate, ordersController.createOrder)
-router.get('/me', authenticate, ordersController.getMyOrders)
+router.get('/myorders', authenticate, ordersController.getMyOrders)
 
 // Admin only routes
 router.get('/', authenticate, authorize('admin'), ordersController.getAllOrders)

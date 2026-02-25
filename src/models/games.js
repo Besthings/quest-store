@@ -5,35 +5,34 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-
         category_id: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-
         title: {
             type: DataTypes.STRING,
             allowNull: false
         },
-
         description: {
             type: DataTypes.TEXT,
             allowNull: false
         },
-
         price: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-
         stock_quantity: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        imagePath: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            
         }
 
     }, {
-        
         timestamps: true,
     })
 

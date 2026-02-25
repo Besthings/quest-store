@@ -43,5 +43,6 @@ module.exports = (sequelize, DataTypes) => {
         const bcrypt = require('bcrypt')
         return await bcrypt.compare(password, this.password)
     }
+    
     return Users
 }
