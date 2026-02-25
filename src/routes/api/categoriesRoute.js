@@ -2,17 +2,17 @@ const express = require('express');
 const router = express.Router();
 const { 
     createCategory, 
-    getAllCategory, 
-    getCategoryByName, 
+    getAllCategories, 
+    getCategoryById, 
     updateCategory, 
     deleteCategory 
 } = require('../../controllers/categoriesController');
 
 // GET all categories
-router.get('/', getAllCategory);
+router.get('/', getAllCategories);
 
-// GET category by name
-router.get('/:category_name', getCategoryByName);
+// GET category by id
+router.get('/:id', getCategoryById);
 
 // POST create category
 router.post('/', createCategory);

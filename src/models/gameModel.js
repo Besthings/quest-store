@@ -1,3 +1,5 @@
+const { getImageUrlById } = require('../../game/game.idurl');
+
 module.exports = (sequelize, DataTypes) => {
     const Games = sequelize.define('Games', {
         id: {

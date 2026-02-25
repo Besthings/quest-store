@@ -1,7 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const { getAllGames } = require('../game/game.controller');
+const express = require('express')
+const router = express.Router()
+const gameController = require('../../controllers/gameController')
+const { authenticate, authorize } = require('../../middleware/authMiddleware')
 
-router.get('/games', getAllGames);
+router.get('/', gameController.getAllGames)
+router.get('/:id', gameController.getGameById)
+router.get('/slug/:slug', gameController.getGameBySlug)
 
-module.exports = router;
+
+router.post('/', authenticate, authorize('admin'), gameController.createGame)
+router.put('/:id', authenticate, authorize('admin'), gameController.updateGame)
+router.delete('/:id', authenticate, authorize('admin'), gameController.deleteGame)
+
+module.exports = router

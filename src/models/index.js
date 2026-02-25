@@ -8,6 +8,8 @@ const sequelize = new Sequelize({
 
 const Users = require('./usersModel')(sequelize, DataTypes)
 const Orders = require('./ordersModel')(sequelize, DataTypes)
+const Categories = require('./categoriesModel')(sequelize, DataTypes)
+const Games = require('./gameModel')(sequelize, DataTypes)
 
 // user -> order
 Users.hasMany(Orders, {
@@ -21,8 +23,6 @@ Orders.belongsTo(Users, {
 })
 
 
-const Categories = require('./categoriesModel')(sequelize, DataTypes)
-const Games = require('./gameModel')(sequelize, DataTypes)
 // category -> games
 Categories.hasMany(Games, {
   foreignKey: 'category_id',
@@ -36,11 +36,10 @@ Games.belongsTo(Categories, {
 
 
 
-
-
 module.exports = {
   sequelize,
   Users,
   Categories,
-  Orders
+  Orders,
+  Games
 }
