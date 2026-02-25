@@ -21,7 +21,7 @@ const pagesRoute = require('./src/routes/pagesRoute')
 // API
 app.use('/api/v1/users', usersRoute)
 
-//
+// Website
 app.use('/', pagesRoute)
 
 

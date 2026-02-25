@@ -8,9 +8,22 @@ const sequelize = new Sequelize({
 
 const Users = require('./usersModel')(sequelize, DataTypes)
 const Categories = require('./categorysModel')(sequelize, DataTypes)
+const Orders = require('./ordersModel')(sequelize, DataTypes)
+
+Users.hasMany(Orders, {
+  foreignKey: 'user_id',
+  as: 'orders'
+})
+
+Orders.belongsTo(Users, {
+  foreignKey: 'user_id',
+  as: 'user'
+})
+
 
 module.exports = {
   sequelize,
   Users,
-  Categories
+  Categories,
+  Orders
 }
