@@ -1,16 +1,56 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    const passwordInput = document.getElementById("regPassword");
-    const registerBtn = document.getElementById("registerBtnSubmit");
+    // ===== Toggle Login / Register =====
+    const loginBtn = document.getElementById("loginBtn");
+    const registerBtn = document.getElementById("registerBtn");
 
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+
+    if (registerBtn) {
+        registerBtn.addEventListener("click", function () {
+            registerForm.classList.remove("hidden");
+            loginForm.classList.add("hidden");
+
+            registerBtn.classList.add("border-indigo-600","text-indigo-600");
+            loginBtn.classList.remove("border-indigo-600","text-indigo-600");
+        });
+    }
+
+    if (loginBtn) {
+        loginBtn.addEventListener("click", function () {
+            loginForm.classList.remove("hidden");
+            registerForm.classList.add("hidden");
+
+            loginBtn.classList.add("border-indigo-600","text-indigo-600");
+            registerBtn.classList.remove("border-indigo-600","text-indigo-600");
+        });
+    }
+
+    // ===== Password Validation =====
+    const passwordInput = document.getElementById("regPassword");
     const lengthEl = document.getElementById("length");
     const upperEl = document.getElementById("uppercase");
     const lowerEl = document.getElementById("lowercase");
     const numberEl = document.getElementById("number");
+    const registerSubmitBtn = document.getElementById("registerBtnSubmit");
 
-    if (!passwordInput) return;
+    if (!registerForm || !passwordInput) return;
 
-    passwordInput.addEventListener("keyup", validatePassword);
+    let passwordTouched = false;
+
+    // แสดง validation เมื่อผู้ใช้ blur ออกจากฟิลด์
+    passwordInput.addEventListener("blur", function () {
+        passwordTouched = true;
+        validatePassword();
+    });
+
+    // อัปเดต validation แบบ real-time หลังจากที่ touched แล้ว
+    passwordInput.addEventListener("input", function () {
+        if (passwordTouched) {
+            validatePassword();
+        }
+    });
 
     function validatePassword() {
         let password = passwordInput.value;
@@ -20,23 +60,40 @@ document.addEventListener("DOMContentLoaded", function () {
         let lowerCheck = /[a-z]/.test(password);
         let numberCheck = /[0-9]/.test(password);
 
-        updateStatus(lengthEl, lengthCheck);
-        updateStatus(upperEl, upperCheck);
-        updateStatus(lowerEl, lowerCheck);
-        updateStatus(numberEl, numberCheck);
+        showRule(lengthEl, lengthCheck);
+        showRule(upperEl, upperCheck);
+        showRule(lowerEl, lowerCheck);
+        showRule(numberEl, numberCheck);
 
-        if (lengthCheck && upperCheck && lowerCheck && numberCheck) {
-            registerBtn.disabled = false;
-            registerBtn.classList.remove("bg-purple-400", "cursor-not-allowed");
-            registerBtn.classList.add("bg-purple-600", "hover:bg-purple-700");
-        } else {
-            registerBtn.disabled = true;
-            registerBtn.classList.add("bg-purple-400", "cursor-not-allowed");
-            registerBtn.classList.remove("bg-purple-600", "hover:bg-purple-700");
+        let isValid = lengthCheck && upperCheck && lowerCheck && numberCheck;
+        
+        // Enable/disable ปุ่ม Register ตามความถูกต้องของ password
+        if (registerSubmitBtn) {
+            if (isValid) {
+                registerSubmitBtn.disabled = false;
+                registerSubmitBtn.classList.remove("bg-purple-400", "cursor-not-allowed");
+                registerSubmitBtn.classList.add("bg-purple-600", "hover:bg-purple-700");
+            } else {
+                registerSubmitBtn.disabled = true;
+                registerSubmitBtn.classList.add("bg-purple-400", "cursor-not-allowed");
+                registerSubmitBtn.classList.remove("bg-purple-600", "hover:bg-purple-700");
+            }
         }
+
+        return isValid;
     }
 
-    function updateStatus(element, condition) {
+    registerForm.addEventListener("submit", function (e) {
+        passwordTouched = true;
+        
+        if (!validatePassword()) {
+            e.preventDefault();
+        }
+    });
+
+    function showRule(element, condition) {
+        element.classList.remove("hidden");
+
         if (condition) {
             element.classList.remove("text-red-500");
             element.classList.add("text-green-500");
@@ -47,37 +104,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
-
-function showLogin() {
-    const loginForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
-    const loginBtn = document.getElementById("loginBtn");
-    const registerBtn = document.getElementById("registerBtn");
-
-    if (loginForm && registerForm) {
-        loginForm.classList.remove("hidden");
-        registerForm.classList.add("hidden");
-    }
-
-    if (loginBtn && registerBtn) {
-        loginBtn.classList.add("border-indigo-600","text-indigo-600");
-        registerBtn.classList.remove("border-indigo-600","text-indigo-600");
-    }
-}
-
-function showRegister() {
-    const loginForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
-    const loginBtn = document.getElementById("loginBtn");
-    const registerBtn = document.getElementById("registerBtn");
-
-    if (loginForm && registerForm) {
-        registerForm.classList.remove("hidden");
-        loginForm.classList.add("hidden");
-    }
-
-    if (loginBtn && registerBtn) {
-        registerBtn.classList.add("border-indigo-600","text-indigo-600");
-        loginBtn.classList.remove("border-indigo-600","text-indigo-600");
-    }
-}
