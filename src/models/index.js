@@ -7,6 +7,7 @@ const sequelize = new Sequelize({
 });
 
 const Users = require('./usersModel')(sequelize, DataTypes)
+const Categories = require('./categorysModel')(sequelize, DataTypes)
 const Orders = require('./ordersModel')(sequelize, DataTypes)
 
 Users.hasMany(Orders, {
@@ -23,5 +24,6 @@ Orders.belongsTo(Users, {
 module.exports = {
   sequelize,
   Users,
+  Categories,
   Orders
 }
