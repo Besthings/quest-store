@@ -1,31 +1,42 @@
 module.exports = (sequelize, DataTypes) => {
-    const OrderDetail = sequelize.define('OrderDetail', {
+    const Games = sequelize.define('Games', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        order_id: {
+
+        category_id: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        game_id: {
-            type: DataTypes.INTEGER,
+
+        title: {
+            type: DataTypes.STRING,
             allowNull: false
         },
-        quantity: {
-            type: DataTypes.INTEGER,
+
+        description: {
+            type: DataTypes.TEXT,
             allowNull: false
         },
+
         price: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+
+        stock_quantity: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
+
     }, {
-        timestamps: true
+        
+        timestamps: true,
     })
 
-   
 
-    return OrderDetail
+    return Games
 }

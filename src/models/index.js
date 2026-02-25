@@ -20,6 +20,7 @@ Orders.belongsTo(Users, {
   as: 'user'
 })
 
+
 const Categories = require('./categoriesModel')(sequelize, DataTypes)
 const Games = require('./gameModel')(sequelize, DataTypes)
 // category -> games

@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     const Categories = sequelize.define('Categories', {
-        cate_id: {
+        id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true 
@@ -20,10 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true
     })
 
-    Categories.hasMany(Game, {
-        foreignKey: 'category_id',
-        as: 'games'
-    });
+
     
     return Categories
 }

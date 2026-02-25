@@ -22,15 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true
     })
 
-    GameKey.belongsTo(Game, {
-        foreignKey: 'game_id',
-        as: 'game'
-    });
-
-    GameKey.belongsTo(Detail, {
-        foreignKey: 'detail_id',
-        as: 'detail'
-    });
 
 
     return game_Key
