@@ -16,10 +16,13 @@ app.set('views', './src/views')
 
 // Routes
 const usersRoute = require('./src/routes/api/usersRoute')
+const ordersRoute = require('./src/routes/api/ordersRoute')
 const pagesRoute = require('./src/routes/pagesRoute')
 
 // API
-app.use('/api/v1/users', usersRoute)
+const baseUrl = '/api'
+app.use(`${baseUrl}/users`, usersRoute)
+app.use(`${baseUrl}/orders`, ordersRoute)
 
 // Website
 app.use('/', pagesRoute)

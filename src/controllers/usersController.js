@@ -1,4 +1,6 @@
 const { Users } = require('../models')
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 const register = async (req, res) => {
     try {
@@ -29,18 +31,36 @@ const login = async (req, res) => {
         if (!isValid) {
             return res.status(401).json({ error: 'Invalid password' })
         }
+
+        const token = jwt.sign(
+            { 
+                id: user.id, 
+                email: user.email, 
+                role: user.role 
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+        )
+
         res.status(200).json({
             message: 'Welcome, amigo',
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            }
+            token,
         })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
+}
+
+const getMe = async (req, res) => {
+    const user = await Users.findByPk(req.user.id, {
+        attributes: { exclude: ['password'] }
+    })
+    
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' })
+    }
+    
+    res.status(200).json({ user })
 }
 
 const getAllUser = async (req, res) => {
@@ -92,6 +112,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
     register,
     login,
+    getMe,
     getAllUser,
     getUserById,
     updateUser,

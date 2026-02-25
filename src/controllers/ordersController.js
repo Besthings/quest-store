@@ -1,26 +1,22 @@
 const { Orders, Users, Order_Details, Game_Keys, Games } = require('../models')
 
-// 1. สร้างรายการสั่งซื้อ
 const createOrder = async (req, res) => {
     try {
-        const userId = req.user.id // ดึงจาก token
+        const userId = req.user.id 
         const { items } = req.body
         
-        // คำนวณราคารวม
         let total = 0
         for (const item of items) {
             const game = await Games.findByPk(item.game_id)
             total += game.price * item.quantity
         }
         
-        // สร้าง Order
         const order = await Orders.create({
             user_id: userId,
             total_amount: total,
             status: 'pending'
         })
         
-        // สร้าง Order_Details และ จอง Game_Keys
         for (const item of items) {
             const detail = await Order_Details.create({
                 order_id: order.id,
@@ -28,7 +24,6 @@ const createOrder = async (req, res) => {
                 subtotal: item.quantity * game.price
             })
             
-            // จอง Key ที่ยังไม่ขาย
             const availableKey = await Game_Keys.findOne({
                 where: { game_id: item.game_id, is_sold: false }
             })
@@ -46,7 +41,7 @@ const createOrder = async (req, res) => {
     }
 }
 
-// 2. ดูรายการสั่งซื้อทั้งหมด (Admin)
+// (Admin)
 const getAllOrders = async (req, res) => {
     try {
         const orders = await Orders.findAll({
@@ -60,7 +55,6 @@ const getAllOrders = async (req, res) => {
     }
 }
 
-// 3. ดูประวัติการสั่งซื้อของตัวเอง
 const getMyOrders = async (req, res) => {
     try {
         const userId = req.user.id
@@ -74,7 +68,6 @@ const getMyOrders = async (req, res) => {
     }
 }
 
-// 4. ดูรายละเอียดคำสั่งซื้อ
 const getOrderById = async (req, res) => {
     try {
         const { id } = req.params
@@ -91,7 +84,7 @@ const getOrderById = async (req, res) => {
     }
 }
 
-// 5. อัปเดตสถานะคำสั่งซื้อ (Admin)
+// (Admin)
 const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params
@@ -107,10 +100,25 @@ const updateOrderStatus = async (req, res) => {
     }
 }
 
+// (Admin)
+const deleteOrder = async (req, res) => {
+    try {
+        const { id } = req.params
+        const order = await Orders.findByPk(id)
+        if (!order) return res.status(404).json({ error: 'Order not found' })
+        
+        await order.destroy()
+        res.status(200).json({ message: 'Order deleted' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
 module.exports = {
     createOrder,
     getAllOrders,
     getMyOrders,
     getOrderById,
-    updateOrderStatus
+    updateOrderStatus,
+    deleteOrder
 }
