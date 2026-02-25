@@ -5,6 +5,18 @@ const createOrder = async (req, res) => {
         const userId = req.user.id
         const { items } = req.body
 
+        for (const item of items) {
+            const availableKeys = await Game_Keys.count({
+                where: { game_id: item.game_id, is_sold: false }
+            })
+
+            if (availableKeys < item.quantity) {
+                return res.status(400).json({
+                    error: `Key mee mai por`
+                })
+            }
+        }
+
         let total = 0
         for (const item of items) {
             const game = await Games.findByPk(item.game_id)
@@ -17,19 +29,19 @@ const createOrder = async (req, res) => {
             status: 'pending'
         })
 
-        // สร้าง order details ก่อน (ยังไม่ assign key)
         for (const item of items) {
             const game = await Games.findByPk(item.game_id)
-            await Order_Details.create({
-                order_id: order.id,
-                game_id: item.game_id,
-                subtotal: item.quantity * game.price
-            })
+            for (let i = 0; i < item.quantity; i++) {
+                await Order_Details.create({
+                    order_id: order.id,
+                    game_id: item.game_id,
+                    subtotal: game.price  
+                })
+            }
         }
 
         res.status(201).json({ message: 'Order created', order })
 
-        // === จำลองการชำระเงิน (รอ 15 วิแล้ว auto complete) ===
         setTimeout(async () => {
             try {
                 console.log('Starting auto-complete for order:', order.id)
@@ -41,33 +53,36 @@ const createOrder = async (req, res) => {
                 console.log('Order details:', completedOrder.orderDetails)
 
                 for (const detail of completedOrder.orderDetails) {
-                    console.log('Finding key for game_id:', detail.game_id)
+                    console.log('Finding keys for game_id:', detail.game_id);
 
-                    const availableKey = await Game_Keys.findOne({
-                        where: { game_id: detail.game_id, is_sold: false }
+                    const availableKeys = await Game_Keys.findAll({
+                        where: { game_id: detail.game_id, is_sold: false },
+                        limit: 1
                     })
 
-                    console.log('Available key:', availableKey)
+                    console.log('Available keys found:', availableKeys.length)
 
-                    if (availableKey) {
-                        availableKey.is_sold = true
-                        availableKey.sold_at = new Date()
-                        await availableKey.save()
+                    if (availableKeys.length > 0) {
+                        const keyIds = availableKeys.map(k => k.id).join(',')
+                        
+                        for (const key of availableKeys) {
+                            key.is_sold = true
+                            key.sold_at = new Date()
+                            await key.save()
+                        }
 
-                        await detail.update({ game_key_id: availableKey.id })
-                        console.log('Updated detail with key:', availableKey.secret_key)
+                        await detail.update({ game_key_id: keyIds })
+                        console.log('Updated detail with keys:', keyIds)
                     }
                 }
 
-                // อัปเดต status เป็น completed
                 await completedOrder.update({ status: 'completed' })
                 console.log('Order completed!')
 
             } catch (err) {
                 console.error('Auto complete error:', err)
             }
-        }, 15000)
-
+        }, 10000)
 
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -94,14 +109,37 @@ const getMyOrders = async (req, res) => {
         const userId = req.user.id
         const orders = await Orders.findAll({
             where: { user_id: userId },
+            attributes: ['id', 'total_amount', 'status'],
             include: [
                 {
                     model: Order_Details, as: 'orderDetails',
-                    include: [{ model: Game_Keys, as: 'gameKey' }]
+                    attributes: ['id', 'subtotal', 'game_key_id'],
+                    separate: true,
+                    order: [['id', 'ASC']]
                 },
             ]
         })
-        res.status(200).json(orders)
+        
+        const ordersWithKeys = await Promise.all(orders.map(async (order) => {
+            const orderData = order.toJSON();
+            
+            for (const detail of orderData.orderDetails) {
+                if (detail.game_key_id && typeof detail.game_key_id === 'string') {
+                    const keyIds = detail.game_key_id.split(',');
+                    const keys = await Game_Keys.findAll({
+                        where: { id: keyIds },
+                        attributes: ['id', 'game_id', 'secret_key', 'is_sold']
+                    });
+                    detail.gameKeys = keys;
+                } else {
+                    detail.gameKeys = [];
+                }
+            }
+            
+            return orderData;
+        }));
+        
+        res.status(200).json(ordersWithKeys)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
