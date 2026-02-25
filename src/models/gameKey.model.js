@@ -18,8 +18,6 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         }
 
-
-
     }, {
         timestamps: true
     })
@@ -35,5 +33,5 @@ module.exports = (sequelize, DataTypes) => {
     });
 
 
-    return Categories
+    return Game_Key
 }
