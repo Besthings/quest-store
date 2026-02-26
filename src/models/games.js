@@ -29,9 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         imagePath: {
             type: DataTypes.STRING,
             allowNull: true,
-            
         }
-
     }, {
         timestamps: true,
     })

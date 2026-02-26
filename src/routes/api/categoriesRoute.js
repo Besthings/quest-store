@@ -2,25 +2,28 @@ const express = require('express');
 const router = express.Router();
 const { 
     createCategory, 
-    getAllCategory, 
-    getCategoryByName, 
+    getAllCategories, 
+    getCategoryById, 
     updateCategory, 
-    deleteCategory 
+    deleteCategory,
+    getGameBySlug
+
 } = require('../../controllers/categoriesController');
+const { getGamesByCategory } = require('../../controllers/categoriesController');
 
-// GET all categories
-router.get('/', getAllCategory);
 
-// GET category by name
-router.get('/:category_name', getCategoryByName);
+router.get('/', getAllCategories);
 
-// POST create category
+router.get('/:slug', getGameBySlug);
+
+router.get('/:id', getCategoryById);
+
+router.get('/:id/games', getGamesByCategory);
+
 router.post('/', createCategory);
 
-// PUT update category
 router.put('/:id', updateCategory);
 
-// DELETE category
 router.delete('/:id', deleteCategory);
 
 module.exports = router;
