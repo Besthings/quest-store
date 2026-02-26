@@ -1,6 +1,4 @@
 const { Games, Categories } = require('../models');
-const { getImageUrlById } = require('../../game/game.idurl');
-
 
 async function getAllGames(req, res) {
     try {
