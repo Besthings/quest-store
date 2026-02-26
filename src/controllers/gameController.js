@@ -14,7 +14,7 @@ async function getAllGames(req, res) {
 const createGame = async (req, res) => {
     try {
         const { title, description, price, category_id, stock_quantity } = req.body;
-        
+
         const category = await Categories.findByPk(category_id);
         if (!category) {
             return res.status(400).json({ error: 'Invalid category_id: not found in categories' });
@@ -86,14 +86,30 @@ const searchGames = async (req, res) => {
     }
 };
 
+// const fs = require('fs');
+// const path = require('path');
 
-module.exports = { 
+// function getImageUrlById(imageId) {
+//     const exts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+//     const publicDir = path.join(__dirname, '../src/public/images');
+//     for (const ext of exts) {
+//         const filePath = path.join(publicDir, `${imageId}.${ext}`);
+//         if (fs.existsSync(filePath)) {
+//             return `/public/images/${imageId}.${ext}`;
+//         }
+//     }
+//     return null; 
+// }
+
+// module.exports = { getImageUrlById };
+
+module.exports = {
     getAllGames,
     createGame,
     updateGame,
     deleteGame,
     getGameById,
-    
+
     getGamesByCategory,
     searchGames
- };
+};
