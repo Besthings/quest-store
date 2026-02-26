@@ -7,20 +7,22 @@ const {
     updateCategory, 
     deleteCategory 
 } = require('../../controllers/categoriesController');
+const { getGamesByCategory } = require('../../controllers/categoriesController');
 
-// GET all categories
 router.get('/', getAllCategories);
 
-// GET category by id
+
 router.get('/:id', getCategoryById);
 
-// POST create category
+router.get('/:id/games', getGamesByCategory);
+
+
 router.post('/', createCategory);
 
-// PUT update category
+
 router.put('/:id', updateCategory);
 
-// DELETE category
+
 router.delete('/:id', deleteCategory);
 
 module.exports = router;

@@ -61,12 +61,28 @@ const deleteCategory = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
-    //IDK HOW TO USE
+
+const getGamesByCategory = async (req, res) => {
+    try {
+        const category = await Categories.findByPk(req.params.id, {
+            include: [{
+                model: Games,
+                as: 'games',
+                attributes: ['id', 'game_name', 'price']
+            }],
+            order: [[{ model: Games, as: 'games' }, 'game_name', 'ASC']]
+        });
+        res.status(200).json({ message: 'Retrieved games by category', category })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
 module.exports = {
     createCategory,
     getAllCategories,
     getCategoryById,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    getGamesByCategory
 }
