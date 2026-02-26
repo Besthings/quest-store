@@ -4,7 +4,7 @@ const gameController = require('../../controllers/gameController')
 
 router.get('/', gameController.getAllGames)
 router.get('/:id', gameController.getGameById)
-router.get('/slug/:slug', gameController.getGameBySlug)
+
 
 
 router.post('/', gameController.createGame)

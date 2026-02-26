@@ -1,5 +1,5 @@
 const { Categories } = require('../models')
-const { Games} = require('../models')
+const { Games } = require('../models')
 
 const createCategory = async (req, res) => {
     try {
@@ -78,11 +78,33 @@ const getGamesByCategory = async (req, res) => {
     }
 }
 
+const getGameBySlug = async (req, res) => {
+    try {
+        const categories = await Categories.findOne({
+            where: { slug: req.params.slug },
+            include: [{
+                model: Games,
+                as: 'games',
+            }],
+            order: [[{ model:Games , as: 'games'}, 'title','ASC']]
+        });
+
+        if (!categories) return res.status(404).json({ error: 'Not found Game' });
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+
 module.exports = {
     createCategory,
     getAllCategories,
     getCategoryById,
     updateCategory,
     deleteCategory,
-    getGamesByCategory
+    getGamesByCategory,
+    getGameBySlug
 }

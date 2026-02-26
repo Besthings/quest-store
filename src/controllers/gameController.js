@@ -64,15 +64,7 @@ const getGameById = async (req, res) => {
     }
 };
 
-const getGameBySlug = async (req, res) => {
-    try {
-        const game = await Games.findOne({ where: { slug: req.params.slug } });
-        if (!game) return res.status(404).json({ error: 'Not found Game' });
-        res.status(200).json(game);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+
 
 const getGamesByCategory = async (req, res) => {
     try {
@@ -101,7 +93,7 @@ module.exports = {
     updateGame,
     deleteGame,
     getGameById,
-    getGameBySlug,
+    
     getGamesByCategory,
     searchGames
  };
