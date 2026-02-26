@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <title>Store - THE GAME STORE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/theme.js"></script>
+    <script>
+      tailwind.config = { darkMode: 'class' }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-900 text-white">
+<body class="bg-white text-black dark:bg-gray-900 dark:text-white">
 
 <%- include('partials/header') %>
 
@@ -52,7 +56,7 @@
         ]; %>
 
         <% games.forEach(game => { %>
-            <div class="game-card bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition"
+            <div class="game-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition text-black dark:text-white"
                  data-name="<%= game.name %>"
                  data-category="<%= game.category %>">
 

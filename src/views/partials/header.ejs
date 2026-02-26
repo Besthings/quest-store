@@ -1,23 +1,77 @@
 <!-- Navbar -->
-<nav class="bg-gray-800 shadow-lg">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+<nav class="bg-white text-black dark:bg-gray-900 dark:text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        <h1 class="text-2xl font-bold text-indigo-400">THE GAME STORE</h1>
+    <!-- LEFT : Logo -->
+    <h1 class="text-2xl font-bold text-indigo-400 cursor-pointer">
+      QUEST STORE
+    </h1>
 
-        <div class="flex items-center space-x-4">
+    <!-- CENTER : Search Bar -->
+    <div class="flex-1 mx-10">
+      <form action="/search" method="GET" class="relative">
+        <input 
+          type="text" 
+          name="q"
+          placeholder="What are you looking for?"
+          class="w-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white px-5 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button type="submit" class="absolute right-3 top-2.5 text-gray-400 hover:text-indigo-400">
+          🔍
+        </button>
+      </form>
+    </div>
 
-            <a href="/dashboard" class="hover:text-indigo-400 transition">
-                Dashboard
-            </a>
+    <!-- RIGHT : Icons -->
+    <div class="flex items-center space-x-6 relative">
 
-            <a href="/allgame" class="hover:text-indigo-400 transition">
-                All Games
-            </a>
+      <!-- Cart Icon -->
+      <a href="/cart" class="relative hover:text-indigo-400 transition text-xl">
+        🛒
+      </a>
 
-            <a href="/login" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600 transition">
-                Logout
-            </a>
+      <!-- Theme Toggle Icon -->
+      <a href="#" id="themeToggleBtn" class="relative hover:text-indigo-400 transition text-xl ml-4">
+        <span id="themeIcon">🌙</span>
+      </a>
+
+      <!-- User Dropdown -->
+      <div class="relative">
+        <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+          <div class="w-9 h-9 bg-gray-700 rounded-full flex items-center justify-center hover:bg-indigo-500 transition">
+            👤
+          </div>
+        </button>
+
+        <!-- Dropdown -->
+        <div id="userDropdown"
+             class="hidden absolute right-0 mt-3 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+
+          <a href="/profile" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+            Profile
+          </a>
+
+          <a href="/Dashboard" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+            Dashboard
+          </a>
+
+          <a href="/orders" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+            Order History
+          </a>
+
+          <hr class="border-gray-700 my-2">
+
+         <a href="/login" class="block px-4 py-2 text-red-400 hover:bg-gray-700 transition">
+            Logout
+        </a>
 
         </div>
+      </div>
+
     </div>
+
+  </div>
 </nav>
+
+<!-- JS -->
+<script src="/js/navbar.js"></script>

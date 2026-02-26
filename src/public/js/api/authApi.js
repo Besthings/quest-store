@@ -11,8 +11,8 @@ async function loginUser(email, password) {
             console.log('✅ Login successful');
             // เก็บ token ใน cookie (ระยะเวลา 1 วัน)
             document.cookie = "token=" + response.data.token + "; path=/; max-age=86400";
-            // รีไดเรกต์ไปหน้า dashboard ทันที
-            window.location.assign('/dashboard');
+            // รีไดเรกต์ไปหน้า home ทันที
+            window.location.assign('/home');
             return;
         }
 
