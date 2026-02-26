@@ -9,6 +9,21 @@
       tailwind.config = { darkMode: 'class' }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-400vw); }
+        }
+        .animate-slide-desktop {
+            animation: slide 40s linear infinite;
+        }
+        @media (max-width: 768px) {
+            .animate-slide-desktop {
+                animation: slide 20s linear infinite;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-white text-black dark:bg-gray-900 dark:text-white">
@@ -16,10 +31,26 @@
 <%- include('partials/header') %>
 
 <!-- Hero Section -->
-<section class="h-80 flex items-center justify-center bg-gray-200 dark:bg-gray-800 text-center">
-    <div>
-        <h1 class="text-4xl font-bold mb-2 text-black dark:text-white">Welcome</h1>
-        <h2 class="text-2xl text-indigo-400">QUEST STORE</h2>
+<section class="relative h-80 flex items-center justify-center bg-gray-200 dark:bg-gray-800 text-center overflow-hidden">
+    <!-- Background Slider -->
+    <div class="absolute top-0 left-0 flex w-[800vw] h-full animate-slide-desktop">
+        <img src="/images/re9.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/arcraider.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/red2.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/mine.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/re9.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/arcraider.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/red2.jpg" class="w-screen h-full object-cover" />
+        <img src="/images/mine.jpg" class="w-screen h-full object-cover" />
+    </div>
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative z-10">
+        <!-- framed card like login -->
+        <div class="mx-auto w-96 bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-xl shadow-2xl">
+            <h1 class="text-4xl font-bold mb-2 text-black dark:text-white">Welcome</h1>
+            <h2 class="text-2xl text-indigo-400">QUEST STORE</h2>
+        </div>
     </div>
 </section>
 
