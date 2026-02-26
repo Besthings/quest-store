@@ -1,15 +1,15 @@
 const { Categories } = require('../models')
-
+const { Games } = require('../models')
 
 const createCategory = async (req, res) => {
     try {
-        const { name, slug} = req.body
-        const category = await Categories.create({ category_name: name, slug })
+        const { categories_name, slug } = req.body;
+        const category = await Categories.create({ categories_name, slug });
         res.status(201).json({
             message: 'Created category succesfully',
             category: {
-                id: category.cate_id,
-                name :category.category_name,
+                id: category.id,
+                categories_name: category.categories_name,
                 slug: category.slug
             }
         })
@@ -18,61 +18,93 @@ const createCategory = async (req, res) => {
     }
 }
 
-const getAllCategory = async (req, res) => {
+const getAllCategories = async (req, res) => {
     try {
         const categorys = await Categories.findAll({
-            attributes: [ 'cate_id', 'category_name', 'slug'],
-            order: [['cate_id', 'ASC']]
+            attributes: ['id', 'categories_name', 'slug'],
+            order: [['id', 'ASC']]
         });
         res.status(200).json(categorys)
-    }    catch (error) {
+    } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
-const getCategoryByName = async (req, res) => {
+const getCategoryById = async (req, res) => {
     try {
-
-        const getcate = await Categories.findOne({
-            where: { category_name: req.params.category_name }
-        })
-        if (!getcate) return res.status(404).json({error: 'Not found Category!'})
-        res.status(200).json({ message: 'Retrived category', get_cate})
+        const category = await Categories.findByPk(req.params.id);
+        if (!category) return res.status(404).json({ error: 'Not found Category!' });
+        res.status(200).json({ message: 'Retrieved category', category });
     } catch (error) {
-            res.status(500).json({ error: error.message })
-        }
-}
+        res.status(500).json({ error: error.message });
+    }
+};
 
-
-//IDK HOW TO USE
-
-const updateUser = async (req, res) => {
+const updateCategory = async (req, res) => {
     try {
-        const user = await Users.findByPk(req.params.id)
-        if (!user) return res.status(404).json({ error: 'Not found user' })
-        await user.update(req.body)
-        res.status(200).json({ message: 'Updated user', user })
+        const category = await Categories.findByPk(req.params.id)
+        if (!category) return res.status(404).json({ error: 'Not found category' })
+        await category.update(req.body)
+        res.status(200).json({ message: 'Updated category', category })
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
 }
 
-const deleteUser = async (req, res) => {
+const deleteCategory = async (req, res) => {
     try {
-        const user = await Users.findByPk(req.params.id)
-        if (!user) return res.status(404).json({ error: 'Not found user' })
-        await user.destroy()
-        res.status(200).json({ message: 'Deleted user' })
+        const category = await Categories.findByPk(req.params.id)
+        if (!category) return res.status(404).json({ error: 'Not found category' })
+        await category.destroy()
+        res.status(200).json({ message: 'Deleted category' })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
+const getGamesByCategory = async (req, res) => {
+    try {
+        const category = await Categories.findByPk(req.params.id, {
+            include: [{
+                model: Games,
+                as: 'games',
+                attributes: ['id', 'game_name', 'price']
+            }],
+            order: [[{ model: Games, as: 'games' }, 'game_name', 'ASC']]
+        });
+        res.status(200).json({ message: 'Retrieved games by category', category })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const getGameBySlug = async (req, res) => {
+    try {
+        const categories = await Categories.findOne({
+            where: { slug: req.params.slug },
+            include: [{
+                model: Games,
+                as: 'games',
+            }],
+            order: [[{ model:Games , as: 'games'}, 'title','ASC']]
+        });
+
+        if (!categories) return res.status(404).json({ error: 'Not found Game' });
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+
 module.exports = {
-    register,
-    login,
-    getAllUser,
-    getUserById,
-    updateUser,
-    deleteUser
+    createCategory,
+    getAllCategories,
+    getCategoryById,
+    updateCategory,
+    deleteCategory,
+    getGamesByCategory,
+    getGameBySlug
 }

@@ -9,6 +9,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        detail_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'OrderDetails',
+                key: 'id'
+            }
+        },
         is_sold: {
             type: DataTypes.BOOLEAN,
             allowNull: false

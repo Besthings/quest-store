@@ -68,15 +68,17 @@ Order_Details.belongsTo(Games, {
   as: 'game'
 })
 
-// 6. Order_Details ↔ Game_Keys (One-to-One)
+
+// 6. Order_Details → Game_Keys (One-to-One reverse)
 Game_Keys.hasOne(Order_Details, {
-  foreignKey: 'game_key_id',
-  as: 'orderDetail'
+    foreignKey: 'game_key_id',
+    as: 'orderDetail'
 })
 Order_Details.belongsTo(Game_Keys, {
-  foreignKey: 'game_key_id',
-  as: 'gameKey'
+    foreignKey: 'game_key_id',
+    as: 'gameKey'
 })
+
 
 module.exports = {
   sequelize,

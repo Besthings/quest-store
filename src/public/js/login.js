@@ -13,7 +13,9 @@ document.addEventListener("DOMContentLoaded", function () {
             loginForm.classList.add("hidden");
 
             registerBtn.classList.add("border-indigo-600","text-indigo-600");
+            registerBtn.style.borderBottomColor = "#4f46e5";
             loginBtn.classList.remove("border-indigo-600","text-indigo-600");
+            loginBtn.style.borderBottomColor = "transparent";
         });
     }
 
@@ -23,7 +25,43 @@ document.addEventListener("DOMContentLoaded", function () {
             registerForm.classList.add("hidden");
 
             loginBtn.classList.add("border-indigo-600","text-indigo-600");
+            loginBtn.style.borderBottomColor = "#4f46e5";
             registerBtn.classList.remove("border-indigo-600","text-indigo-600");
+            registerBtn.style.borderBottomColor = "transparent";
+        });
+    }
+
+    // ===== Form Submit Handlers =====
+    // Login Form Submit
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = this.querySelector('input[name="email"]').value;
+            const password = this.querySelector('input[name="password"]').value;
+            
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            loginUser(email, password);
+        });
+    }
+
+    // Register Form Submit
+    if (registerForm) {
+        registerForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const username = this.querySelector('input[name="username"]').value;
+            const email = this.querySelector('input[name="email"]').value;
+            const password = this.querySelector('input[name="password"]').value;
+            
+            if (!username || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            registerUser(username, email, password);
         });
     }
 
@@ -39,17 +77,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let passwordTouched = false;
 
-    // แสดง validation เมื่อผู้ใช้ blur ออกจากฟิลด์
-    passwordInput.addEventListener("blur", function () {
+    // เช็ค real-time เมื่อพิมพ์
+    passwordInput.addEventListener("input", function () {
         passwordTouched = true;
         validatePassword();
-    });
-
-    // อัปเดต validation แบบ real-time หลังจากที่ touched แล้ว
-    passwordInput.addEventListener("input", function () {
-        if (passwordTouched) {
-            validatePassword();
-        }
     });
 
     function validatePassword() {
@@ -71,12 +102,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (registerSubmitBtn) {
             if (isValid) {
                 registerSubmitBtn.disabled = false;
-                registerSubmitBtn.classList.remove("bg-purple-400", "cursor-not-allowed");
-                registerSubmitBtn.classList.add("bg-purple-600", "hover:bg-purple-700");
+                registerSubmitBtn.classList.remove("bg-indigo-600", "cursor-not-allowed");
+                registerSubmitBtn.classList.add("bg-indigo-700", "hover:bg-indigo-700");
             } else {
                 registerSubmitBtn.disabled = true;
-                registerSubmitBtn.classList.add("bg-purple-400", "cursor-not-allowed");
-                registerSubmitBtn.classList.remove("bg-purple-600", "hover:bg-purple-700");
+                registerSubmitBtn.classList.add("bg-indigo-600", "cursor-not-allowed");
+                registerSubmitBtn.classList.remove("bg-indigo-700", "hover:bg-indigo-700");
             }
         }
 
@@ -92,15 +123,28 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function showRule(element, condition) {
-        element.classList.remove("hidden");
-
         if (condition) {
-            element.classList.remove("text-red-500");
-            element.classList.add("text-green-500");
+            // ถูกแล้ว ให้ซ่อน
+            element.classList.add("hidden");
         } else {
+            // ยังผิด ให้แสดงเป็นแดง
+            element.classList.remove("hidden");
             element.classList.add("text-red-500");
             element.classList.remove("text-green-500");
         }
     }
+
+    // ===== Password Visibility Toggle =====
+    function togglePasswordVisibility(fieldId, imgElement) {
+        const field = document.getElementById(fieldId);
+        if (field.type === 'password') {
+            field.type = 'text';
+        } else {
+            field.type = 'password';
+        }
+    }
+    
+    // Make function globally accessible
+    window.togglePasswordVisibility = togglePasswordVisibility;
 
 });
