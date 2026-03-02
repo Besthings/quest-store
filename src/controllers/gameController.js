@@ -1,9 +1,28 @@
-const { Games, Categories } = require('../models');
+const { Games, Categories ,Game_Keys} = require('../models');
 
 async function getAllGames(req, res) {
     try {
-        const allGames = await Games.findAll();
-        res.json(allGames);
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Games.findAndCountAll({
+            limit,
+            offset,
+            order: [['id', 'ASC']]
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.json({
+            data: rows,
+            pagination: {
+                totalItems: count,
+                totalPages,
+                currentPage: page,
+                limit
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -84,22 +103,7 @@ const searchGames = async (req, res) => {
     }
 };
 
-// const fs = require('fs');
-// const path = require('path');
-
-// function getImageUrlById(imageId) {
-//     const exts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-//     const publicDir = path.join(__dirname, '../src/public/images');
-//     for (const ext of exts) {
-//         const filePath = path.join(publicDir, `${imageId}.${ext}`);
-//         if (fs.existsSync(filePath)) {
-//             return `/public/images/${imageId}.${ext}`;
-//         }
-//     }
-//     return null; 
-// }
-
-// module.exports = { getImageUrlById };
+const getKeysByGame
 
 module.exports = {
     getAllGames,
@@ -107,7 +111,6 @@ module.exports = {
     updateGame,
     deleteGame,
     getGameById,
-
     getGamesByCategory,
     searchGames
 };

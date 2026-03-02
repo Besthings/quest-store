@@ -1,4 +1,4 @@
-const { Favorites, Games, Users } = require('../models')
+const { Favorites, Games, Users, Categories } = require('../models')
 
 const favoritesController = {
     // GET /api/favorites - ดูรายการโปรดของ user ที่ login

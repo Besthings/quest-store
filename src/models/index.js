@@ -94,7 +94,11 @@ Games.belongsToMany(Users, {
     as: 'favoritedBy'
 })
 
-
+// Direct associations for Favorites (so controller can include Game/User)
+Favorites.belongsTo(Games, { foreignKey: 'game_id', as: 'Game' })
+Favorites.belongsTo(Users, { foreignKey: 'user_id', as: 'User' })
+Games.hasMany(Favorites, { foreignKey: 'game_id', as: 'favorites' })
+Users.hasMany(Favorites, { foreignKey: 'user_id', as: 'favorites' })
 
 module.exports = {
   sequelize,
@@ -103,5 +107,6 @@ module.exports = {
   Games,
   Orders,
   Order_Details,
-  Game_Keys
+  Game_Keys,
+  Favorites
 }
