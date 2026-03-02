@@ -79,6 +79,22 @@ Order_Details.belongsTo(Game_Keys, {
     as: 'gameKey'
 })
 
+// 7. Users ↔ Games (Many-to-Many through Favorites)
+const Favorites = require('./favorites')(sequelize, DataTypes)
+
+Users.belongsToMany(Games, {
+    through: Favorites,
+    foreignKey: 'user_id',
+    as: 'favoriteGames'
+})
+
+Games.belongsToMany(Users, {
+    through: Favorites,
+    foreignKey: 'game_id',
+    as: 'favoritedBy'
+})
+
+
 
 module.exports = {
   sequelize,

@@ -5,6 +5,14 @@ require('dotenv').config()
 const register = async (req, res) => {
     try {
         const { username, email, password } = req.body
+        // Password Validation
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number'
+            })
+        }
+
         const user = await Users.create({ username, email, password })
         res.status(201).json({
             message: 'Created user succesfully',
@@ -20,6 +28,7 @@ const register = async (req, res) => {
     }
 }
 
+
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -33,10 +42,10 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { 
-                id: user.id, 
-                email: user.email, 
-                role: user.role 
+            {
+                id: user.id,
+                email: user.email,
+                role: user.role
             },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
@@ -55,11 +64,11 @@ const getMe = async (req, res) => {
     const user = await Users.findByPk(req.user.id, {
         attributes: { exclude: ['password'] }
     })
-    
+
     if (!user) {
         return res.status(404).json({ error: 'User not found' })
     }
-    
+
     res.status(200).json({ user })
 }
 

@@ -19,6 +19,7 @@ const usersRoute = require('./src/routes/api/usersRoute')
 const ordersRoute = require('./src/routes/api/ordersRoute')
 const categoriesRoute = require('./src/routes/api/categoriesRoute')
 const gamesRoute = require('./src/routes/api/gamesRoute')
+const favoritesRoute = require('./src/routes/api/favoritesRoute')
 const pagesRoute = require('./src/routes/pagesRoute')
 
 // API
@@ -27,6 +28,7 @@ app.use(`${baseUrl}/users`, usersRoute)
 app.use(`${baseUrl}/orders`, ordersRoute)
 app.use(`${baseUrl}/categories`, categoriesRoute)
 app.use(`${baseUrl}/games`, gamesRoute)
+app.use(`${baseUrl}/favorites`, favoritesRoute)
 
 // Website
 app.use('/', pagesRoute)
