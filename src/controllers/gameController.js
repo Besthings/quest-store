@@ -1,4 +1,5 @@
-const { Games, Categories ,Game_Keys} = require('../models');
+const { Games, Categories, Game_Keys } = require('../models');
+const { Op } = require('sequelize');
 
 async function getAllGames(req, res) {
     try {
@@ -9,13 +10,28 @@ async function getAllGames(req, res) {
         const { count, rows } = await Games.findAndCountAll({
             limit,
             offset,
-            order: [['id', 'ASC']]
+            order: [['id', 'ASC']],
+            include: [{
+                model: Game_Keys,
+                as: 'keys',
+                where: { is_sold: false },
+                required: false,
+                attributes: ['id', 'secret_key', 'is_sold']
+            }]
+        });
+
+        const data = rows.map(game => {
+            const gameJSON = game.toJSON();
+            return {
+                ...gameJSON,
+                stock_quantity: gameJSON.keys ? gameJSON.keys.length : 0
+            };
         });
 
         const totalPages = Math.ceil(count / limit);
 
         res.json({
-            data: rows,
+            data,
             pagination: {
                 totalItems: count,
                 totalPages,
@@ -73,37 +89,81 @@ const deleteGame = async (req, res) => {
 
 const getGameById = async (req, res) => {
     try {
-        const game = await Games.findByPk(req.params.id);
+        const game = await Games.findByPk(req.params.id, {
+            include: [{
+                model: Game_Keys,
+                as: 'keys',
+                where: { is_sold: false },
+                required: false,
+                attributes: ['id', 'secret_key', 'is_sold']
+            }]
+        });
         if (!game) return res.status(404).json({ error: 'Not found Game' });
-        res.status(200).json(game);
+
+        const gameJSON = game.toJSON();
+        res.status(200).json({
+            ...gameJSON,
+            stock_quantity: gameJSON.keys ? gameJSON.keys.length : 0
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
-
 
 const getGamesByCategory = async (req, res) => {
     try {
-        const gamesByCategory = await Games.findAll({ where: { category_id: req.params.categoryId } });
-        res.status(200).json(gamesByCategory);
+        const gamesByCategory = await Games.findAll({
+            where: { category_id: req.params.categoryId },
+            include: [{
+                model: Game_Keys,
+                as: 'keys',
+                where: { is_sold: false },
+                required: false,
+                attributes: ['id', 'secret_key', 'is_sold']
+            }]
+        });
+
+        const data = gamesByCategory.map(game => {
+            const gameJSON = game.toJSON();
+            return {
+                ...gameJSON,
+                stock_quantity: gameJSON.keys ? gameJSON.keys.length : 0
+            };
+        });
+
+        res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-const { Op } = require('sequelize');
 const searchGames = async (req, res) => {
     try {
         const { title } = req.query;
-        const gamesFound = await Games.findAll({ where: { title: { [Op.like]: `%${title}%` } } });
-        res.status(200).json(gamesFound);
+        const gamesFound = await Games.findAll({
+            where: { title: { [Op.like]: `%${title}%` } },
+            include: [{
+                model: Game_Keys,
+                as: 'keys',
+                where: { is_sold: false },
+                required: false,
+                attributes: ['id', 'secret_key', 'is_sold']
+            }]
+        });
+
+        const data = gamesFound.map(game => {
+            const gameJSON = game.toJSON();
+            return {
+                ...gameJSON,
+                stock_quantity: gameJSON.keys ? gameJSON.keys.length : 0
+            };
+        });
+
+        res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
-const getKeysByGame
 
 module.exports = {
     getAllGames,
