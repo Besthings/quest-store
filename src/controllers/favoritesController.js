@@ -1,4 +1,4 @@
-const { Favorites, Games, Users } = require('../models')
+const { Favorites, Games, Users, Categories } = require('../models')
 
 const favoritesController = {
     // GET /api/favorites - ดูรายการโปรดของ user ที่ login
@@ -10,7 +10,7 @@ const favoritesController = {
                 where: { user_id: userId },
                 include: [{
                     model: Games,
-                    as: 'Game', // ต้องกำหนดใน model association
+                    as: 'game',
                     include: [{
                         model: Categories,
                         as: 'category'
@@ -18,7 +18,9 @@ const favoritesController = {
                 }]
             })
             
-            res.json(favorites)
+            // Return only the game objects for convenience
+            const favoriteGames = favorites.map(f => f.game)
+            res.json(favoriteGames)
         } catch (error) {
             res.status(500).json({ error: error.message })
         }
@@ -91,6 +93,27 @@ const favoritesController = {
             })
 
             res.json({ isFavorited: !!favorite })
+        } catch (error) {
+            res.status(500).json({ error: error.message })
+        }
+    },
+    // POST /api/favorites/toggle - เพิ่มหรือลบออกจากรายการโปรด
+    toggleFavorite: async (req, res) => {
+        try {
+            const userId = req.user.id
+            const { game_id } = req.body
+
+            const existing = await Favorites.findOne({
+                where: { user_id: userId, game_id: game_id }
+            })
+
+            if (existing) {
+                await existing.destroy()
+                return res.json({ message: 'Removed from favorites', isFavorited: false })
+            } else {
+                await Favorites.create({ user_id: userId, game_id: game_id })
+                return res.json({ message: 'Added to favorites', isFavorited: true })
+            }
         } catch (error) {
             res.status(500).json({ error: error.message })
         }

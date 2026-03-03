@@ -1,0 +1,179 @@
+<!-- Cart Top Bar -->
+<header class="sticky top-0 z-50 border-b backdrop-blur-md bg-[#0a0f1e]/95 border-blue-900/30">
+  <div class="container mx-auto px-4 h-14 flex items-center justify-between max-w-5xl">
+    <a href="/" class="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Store
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <i data-lucide="gamepad-2" class="w-3.5 h-3.5 text-white"></i>
+      </div>
+      <span class="text-sm font-black tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">QUEST STORE</span>
+    </div>
+    <button onclick="toggleTheme()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" title="Toggle theme">
+      <i data-lucide="sun" class="h-4 w-4 hidden dark:block"></i>
+      <i data-lucide="moon" class="h-4 w-4 block dark:hidden"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Steps -->
+<div class="container mx-auto px-4 max-w-5xl pt-6 pb-2">
+  <div class="flex items-center justify-center gap-3 text-sm">
+    <span class="flex items-center gap-1.5 text-blue-400 font-semibold">
+      <span class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold" style="color:white">1</span>
+      Cart
+    </span>
+    <div class="w-8 h-px bg-white/20"></div>
+    <span class="flex items-center gap-1.5 text-gray-500">
+      <span class="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-xs font-bold">2</span>
+      Payment
+    </span>
+  </div>
+</div>
+
+<div id="cart-loading" class="container mx-auto py-24 px-4 text-center">
+  <i data-lucide="loader-2" class="h-10 w-10 text-blue-500 animate-spin mx-auto mb-4"></i>
+  <p class="text-gray-400">Loading your cart...</p>
+</div>
+
+<div id="cart-empty" class="container mx-auto py-24 px-4 text-center space-y-5 hidden">
+  <div class="w-24 h-24 rounded-full bg-white/5 border border-white/[0.08] flex items-center justify-center mx-auto">
+    <i data-lucide="shopping-cart" class="h-10 w-10 text-gray-600"></i>
+  </div>
+  <h1 class="text-2xl font-bold text-white">Your cart is empty</h1>
+  <p class="text-gray-400 text-sm">Add some games to get started</p>
+  <a href="/" class="inline-block mt-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors">Browse Games</a>
+</div>
+
+<div id="cart-main" class="container mx-auto px-4 py-10 max-w-5xl hidden">
+  <h1 class="text-2xl font-bold text-white flex items-center gap-3 mb-8">
+    <i data-lucide="shopping-cart" class="h-6 w-6 text-blue-400"></i>
+    Shopping Cart
+    <span id="cart-count-badge" class="text-sm font-normal text-gray-400">(0 items)</span>
+  </h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Items -->
+    <div class="lg:col-span-2 space-y-3">
+      <div id="cart-items-container" class="space-y-3">
+        <!-- Injected via Axios -->
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="clearCart()" class="text-sm text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1.5">
+          <i data-lucide="trash-2" class="h-3.5 w-3.5"></i> Clear cart
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="lg:col-span-1">
+      <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-4 sticky top-20">
+        <h2 class="text-base font-bold text-white">Order Summary</h2>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between text-gray-400">
+            <span>Subtotal</span>
+            <span id="summary-subtotal" class="text-white">฿0</span>
+          </div>
+          <div class="flex justify-between text-gray-400">
+            <span>Tax (7%)</span>
+            <span id="summary-tax" class="text-white">฿0</span>
+          </div>
+          <div class="h-px bg-white/[0.08]"></div>
+          <div class="flex justify-between font-bold text-base">
+            <span class="text-white">Total</span>
+            <span id="summary-total" class="text-blue-400 text-xl">฿0</span>
+          </div>
+        </div>
+        <a href="/checkout"
+           class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 font-bold py-3 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-500/30 transition-all hover:scale-[1.01]" style="color:white">
+          Proceed to Checkout <i data-lucide="arrow-right" class="h-4 w-4"></i>
+        </a>
+        <div class="text-center">
+          <a href="/" class="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center justify-center gap-1">
+            <i data-lucide="gamepad-2" class="h-3 w-3"></i> Continue Shopping
+          </a>
+        </div>
+        <p class="text-xs text-gray-600 text-center pt-1">🔒 Secure checkout · Instant key delivery</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await axios.get('/api/cart');
+    const items = res.data;
+
+    document.getElementById('cart-loading').classList.add('hidden');
+
+    if (!items || items.length === 0) {
+      document.getElementById('cart-empty').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('cart-main').classList.remove('hidden');
+    document.getElementById('cart-count-badge').textContent = `(${items.length} item${items.length > 1 ? 's' : ''})`;
+
+    let subtotal = 0;
+    const container = document.getElementById('cart-items-container');
+    
+    container.innerHTML = items.map(item => {
+      const g = item.game;
+      if (!g) return '';
+      const dp = g.discount ? Math.round(g.price * (1 - g.discount / 100)) : g.price;
+      const lineTotal = dp * item.quantity;
+      subtotal += lineTotal;
+      
+      return `
+        <div class="flex gap-4 p-4 bg-white/5 border border-white/[0.08] rounded-2xl hover:border-white/[0.15] transition-colors group">
+          <a href="/game/${g.id}" class="shrink-0">
+            <img src="${g.image_url || '/images/arcraider.jpg'}" alt="${g.title}" class="w-20 h-24 object-cover rounded-xl bg-gray-800" />
+          </a>
+          <div class="flex-1 min-w-0">
+            <a href="/game/${g.id}">
+              <h3 class="font-semibold text-white text-sm hover:text-blue-300 transition-colors line-clamp-1">${g.title}</h3>
+            </a>
+            <p class="text-xs text-gray-500 mt-0.5">Digital Key · Qty: ${item.quantity}</p>
+            ${g.discount ? `
+              <span class="inline-flex items-center gap-1 text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded mt-1">
+                <i data-lucide="tag" class="h-2.5 w-2.5"></i> -${g.discount}% OFF
+              </span>
+            ` : ''}
+          </div>
+          <div class="flex flex-col items-end justify-between shrink-0">
+            <div class="text-right">
+              <p class="font-bold text-white">฿${lineTotal.toLocaleString()}</p>
+              ${g.discount ? `<p class="text-xs text-gray-500 line-through">฿${(g.price * item.quantity).toLocaleString()}</p>` : ''}
+            </div>
+            <button onclick="removeFromCart('${g.id}')" class="text-gray-600 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-500/10">
+              <i data-lucide="trash-2" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const tax = Math.round(subtotal * 0.07);
+    const total = subtotal + tax;
+
+    document.getElementById('summary-subtotal').textContent = `฿${subtotal.toLocaleString()}`;
+    document.getElementById('summary-tax').textContent = `฿${tax.toLocaleString()}`;
+    document.getElementById('summary-total').textContent = `฿${total.toLocaleString()}`;
+
+    lucide.createIcons();
+  } catch (err) {
+    console.error('Cart page error:', err);
+    document.getElementById('cart-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <i data-lucide="alert-circle" class="h-12 w-12 mx-auto mb-2"></i>
+        <p>Failed to load cart. Please login to continue.</p>
+        <a href="/login" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg">Login</a>
+      </div>
+    `;
+    lucide.createIcons();
+  }
+});
+</script>

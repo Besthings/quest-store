@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js -e ejs,js,css",
+    "dev": "nodemon server.js -e ejs,js,css",
     "seed": "node src/database/seed.js"
   },
   "repository": {
@@ -15,9 +15,11 @@
   "dependencies": {
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1",
     "init": "^0.1.2",
     "jsonwebtoken": "^9.0.3",
     "sequelize": "^6.37.7",

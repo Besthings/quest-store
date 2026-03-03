@@ -1,0 +1,88 @@
+<div class="pb-16 space-y-20">
+  <!-- Hero -->
+  <section class="relative overflow-hidden py-24 px-4 text-center">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.15),transparent_70%)] pointer-events-none"></div>
+    <div class="relative container mx-auto max-w-3xl space-y-6">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-2">
+        <i data-lucide="gamepad-2" class="h-4 w-4"></i>
+        About Quest Store
+      </div>
+      <h1 class="text-5xl md:text-6xl font-black text-white leading-tight">
+        Your Gateway to
+        <span class="block bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+          Premium Gaming
+        </span>
+      </h1>
+      <p class="text-lg text-gray-400 leading-relaxed max-w-xl mx-auto">
+        Quest Store is a professional digital game key marketplace inspired by the world's leading platforms —
+        delivering authentic keys instantly with a premium, seamless experience.
+      </p>
+      <a href="/" class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-colors">Browse Games</a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="container mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <% [
+        { value: '50,000+', label: 'Keys Sold' },
+        { value: '200+', label: 'Game Titles' },
+        { value: '15,000+', label: 'Happy Customers' },
+        { value: '99.9%', label: 'Uptime' },
+      ].forEach(function(s) { %>
+        <div class="text-center p-6 bg-white/5 border border-white/[0.08] rounded-2xl hover:border-blue-500/30 transition-colors">
+          <p class="text-4xl font-black text-white mb-1"><%= s.value %></p>
+          <p class="text-sm text-gray-400"><%= s.label %></p>
+        </div>
+      <% }); %>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="container mx-auto px-4 space-y-10">
+    <div class="text-center space-y-3">
+      <h2 class="text-3xl font-black text-white">Why Quest Store?</h2>
+      <p class="text-gray-400 max-w-xl mx-auto">
+        We built Quest Store to be the go-to destination for digital game keys — fast, secure, and trustworthy.
+      </p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <%
+        var features = [
+          { icon: 'gamepad-2', title: 'Massive Selection', desc: 'Thousands of game keys across all genres — action, RPG, strategy, simulation, and more.', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
+          { icon: 'zap', title: 'Instant Delivery', desc: 'Receive your activation key the moment payment is confirmed. No waiting, no delays.', color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/20' },
+          { icon: 'shield-check', title: 'Genuine Keys Only', desc: '100% authentic keys sourced directly from official publishers and distributors.', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20' },
+          { icon: 'globe', title: 'Global Reach', desc: 'Serving gamers worldwide with multi-region support and competitive pricing.', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
+          { icon: 'users', title: 'Community First', desc: 'Built for gamers, by gamers. A platform that understands what players really need.', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
+          { icon: 'key', title: 'Secure Storage', desc: 'All purchased keys are safely stored in your profile — access them anytime, anywhere.', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
+        ];
+        features.forEach(function(f) {
+      %>
+        <div class="p-6 rounded-2xl border <%= f.bg %> space-y-3 hover:scale-[1.02] transition-transform">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center <%= f.bg %>">
+            <i data-lucide="<%= f.icon %>" class="h-5 w-5 <%= f.color %>"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white"><%= f.title %></h3>
+          <p class="text-gray-400 text-sm leading-relaxed"><%= f.desc %></p>
+        </div>
+      <% }); %>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="container mx-auto px-4">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-900/30 to-purple-900/20 border border-blue-500/20 p-12 text-center space-y-5">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.1),transparent)] pointer-events-none"></div>
+      <h2 class="text-3xl font-black text-white">Our Mission</h2>
+      <p class="text-gray-300 leading-relaxed max-w-3xl mx-auto">
+        At Quest Store, we believe that gaming should be accessible, affordable, and effortless for everyone.
+        Our mission is to deliver a world-class digital marketplace where players can discover, purchase, and
+        activate games in seconds — backed by industry-leading security and a community-focused approach.
+      </p>
+      <div class="inline-flex items-center gap-2 text-blue-400 font-semibold text-sm">
+        <i data-lucide="gamepad-2" class="h-4 w-4"></i>
+        Built for gamers. Powered by passion.
+      </div>
+    </div>
+  </section>
+</div>

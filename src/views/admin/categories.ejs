@@ -1,0 +1,251 @@
+<div id="admin-categories-loading" class="min-h-[60vh] flex items-center justify-center">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 animate-pulse">Loading categories...</p>
+  </div>
+</div>
+
+<div id="admin-categories-content" class="space-y-6 hidden">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+      <i data-lucide="folder-tree" class="h-6 w-6 text-blue-400"></i> Manage Categories
+    </h1>
+    <div class="flex items-center gap-2 bg-white/5 border border-white/[0.08] rounded-xl px-3 py-2 w-full md:w-64">
+      <i data-lucide="search" class="h-4 w-4 text-gray-500"></i>
+      <input id="cat-search" placeholder="Search categories..."
+             oninput="filterCategories()"
+             class="bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none w-full" style="background:transparent !important" />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Add Category -->
+    <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 h-fit space-y-4">
+      <h2 class="text-base font-bold text-white">Create New Category</h2>
+      <input id="new-cat-name" placeholder="Category name"
+             class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 text-sm focus:outline-none focus:border-blue-500 transition-all"
+             onkeydown="if(event.key==='Enter')addCat()" />
+      <button onclick="addCat()" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-colors">
+        <i data-lucide="plus" class="h-4 w-4"></i> Add Category
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="md:col-span-2 rounded-xl border border-white/[0.08] bg-white/5 overflow-hidden">
+      <table class="w-full" id="cat-table">
+        <thead>
+          <tr class="border-b border-white/[0.08]">
+            <th class="text-left text-gray-400 text-xs uppercase px-5 py-3">Name</th>
+            <th class="text-left text-gray-400 text-xs uppercase px-5 py-3">Slug</th>
+            <th class="text-center text-gray-400 text-xs uppercase px-5 py-3">Games</th>
+            <th class="text-right text-gray-400 text-xs uppercase px-5 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="categories-table-body" class="divide-y divide-white/5">
+          <!-- Categories injected here -->
+        </tbody>
+      </table>
+      <!-- Pagination Container -->
+      <div id="cats-pagination" class="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-white/[0.08] bg-black/20 gap-4 hidden">
+        <span id="cats-page-info" class="text-xs text-gray-400 font-medium"></span>
+        <div id="cats-page-buttons" class="flex gap-1.5 overflow-x-auto pb-1 max-w-full"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="delete-modal" class="fixed inset-0 z-50 hidden">
+  <div class="fixed inset-0 bg-black/60" onclick="closeDeleteModal()"></div>
+  <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="bg-modal border border-red-900/40 rounded-2xl p-6 max-w-sm w-full relative space-y-4">
+      <h3 class="text-red-400 font-bold text-lg">Delete Category</h3>
+      <p class="text-gray-300 text-sm">Are you sure you want to delete "<span id="del-cat-name"></span>"?</p>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeDeleteModal()" class="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors">Cancel</button>
+        <button id="del-confirm-btn" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm transition-colors">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allCategories = [];
+let catsPerPage = 10;
+let catsCurrentPage = 1;
+
+function renderCategories(categories) {
+  const tbody = document.getElementById('categories-table-body');
+  const totalPages = Math.max(1, Math.ceil(categories.length / catsPerPage));
+  if (catsCurrentPage > totalPages) catsCurrentPage = totalPages;
+  
+  const start = (catsCurrentPage - 1) * catsPerPage;
+  const end = start + catsPerPage;
+  const paginated = categories.slice(start, end);
+
+  if (categories.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-10 text-sm">No categories found</td></tr>';
+    document.getElementById('cats-pagination').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('cats-pagination').classList.remove('hidden');
+
+  tbody.innerHTML = paginated.map(cat => `
+    <tr class="border-b border-white/5 hover:bg-white/[0.03] cat-row" data-name="${cat.category_name.toLowerCase()}">
+      <td class="px-5 py-3">
+        <span class="cat-name text-white font-medium text-sm" id="cat-name-${cat.id}">${cat.category_name}</span>
+        <div class="hidden" id="cat-edit-${cat.id}">
+          <div class="flex items-center gap-2">
+            <input class="h-8 px-2 bg-white/5 border border-blue-500 text-white text-sm rounded-lg w-36 focus:outline-none" id="cat-input-${cat.id}" value="${cat.category_name}" onkeydown="if(event.key==='Enter')saveCat('${cat.id}');if(event.key==='Escape')cancelEdit('${cat.id}')" />
+            <button onclick="saveCat('${cat.id}')" class="text-green-400 hover:text-green-300"><i data-lucide="check" class="h-4 w-4"></i></button>
+            <button onclick="cancelEdit('${cat.id}')" class="text-gray-400 hover:text-white"><i data-lucide="x" class="h-4 w-4"></i></button>
+          </div>
+        </div>
+      </td>
+      <td class="font-mono text-xs text-gray-500 px-5 py-3">${cat.slug}</td>
+      <td class="text-center px-5 py-3"><span class="text-sm text-blue-400 font-bold">${cat.games ? cat.games.length : 0}</span></td>
+      <td class="text-right px-5 py-3">
+        <div class="flex justify-end gap-1">
+          <button onclick="startEdit('${cat.id}')" class="p-1.5 rounded-lg text-blue-400 hover:bg-blue-900/20 transition-colors"><i data-lucide="edit" class="h-3.5 w-3.5"></i></button>
+          <button onclick="deleteCat('${cat.id}', '${cat.category_name}')" class="p-1.5 rounded-lg text-red-400 hover:bg-red-900/20 transition-colors"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  
+  renderPagination(categories.length);
+  lucide.createIcons();
+}
+
+function renderPagination(totalCats) {
+  const info = document.getElementById('cats-page-info');
+  const btnContainer = document.getElementById('cats-page-buttons');
+  const totalPages = Math.max(1, Math.ceil(totalCats / catsPerPage));
+
+  info.textContent = `Page ${catsCurrentPage} of ${totalPages} (${totalCats} total)`;
+
+  let html = '';
+  html += `<button onclick="goCatsPage(${Math.max(1, catsCurrentPage - 1)})" class="px-2.5 py-1 rounded-lg text-xs ${catsCurrentPage <= 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${catsCurrentPage <= 1 ? 'disabled' : ''}>Prev</button>`;
+
+  const startP = Math.max(1, catsCurrentPage - 2);
+  const endP = Math.min(totalPages, startP + 4);
+  
+  for (let p = startP; p <= endP; p++) {
+    if (p === catsCurrentPage) {
+      html += `<button class="px-2.5 py-1 rounded-lg text-xs bg-blue-600 text-white font-bold">${p}</button>`;
+    } else {
+      html += `<button onclick="goCatsPage(${p})" class="px-2.5 py-1 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/10">${p}</button>`;
+    }
+  }
+
+  html += `<button onclick="goCatsPage(${Math.min(totalPages, catsCurrentPage + 1)})" class="px-2.5 py-1 rounded-lg text-xs ${catsCurrentPage >= totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${catsCurrentPage >= totalPages ? 'disabled' : ''}>Next</button>`;
+  btnContainer.innerHTML = html;
+}
+
+function goCatsPage(p) {
+  catsCurrentPage = p;
+  filterCategories();
+}
+
+function filterCategories() {
+  const q = document.getElementById('cat-search').value.toLowerCase();
+  const filtered = allCategories.filter(cat => cat.category_name.toLowerCase().includes(q));
+  renderCategories(filtered);
+}
+
+function startEdit(id) {
+  document.getElementById('cat-name-' + id).classList.add('hidden');
+  document.getElementById('cat-edit-' + id).classList.remove('hidden');
+  document.getElementById('cat-input-' + id).focus();
+}
+
+function cancelEdit(id) {
+  document.getElementById('cat-name-' + id).classList.remove('hidden');
+  document.getElementById('cat-edit-' + id).classList.add('hidden');
+}
+
+async function saveCat(id) {
+  const name = document.getElementById('cat-input-' + id).value.trim();
+  if (!name) return;
+  try {
+    const res = await axios.put('/api/categories/' + id, { category_name: name });
+    Toast.success('Category updated!');
+    
+    // The controller returns { message, category: { ... } }
+    const updatedCategory = res.data.category;
+    
+    // Update local state
+    const cat = allCategories.find(c => c.id == id);
+    if (cat) {
+      cat.category_name = updatedCategory.category_name;
+      cat.slug = updatedCategory.slug;
+    }
+    renderCategories(allCategories);
+  } catch (err) { 
+    console.error('Update Category Error:', err);
+    Toast.error('Failed to update category'); 
+  }
+}
+
+async function addCat() {
+  const nameInput = document.getElementById('new-cat-name');
+  const name = nameInput.value.trim();
+  if (!name) return;
+  try {
+    const res = await axios.post('/api/categories', { category_name: name });
+    Toast.success('Category added!');
+    nameInput.value = '';
+    
+    // The controller returns { message, category: { ... } }
+    const newCategory = res.data.category;
+    
+    // Add to local state
+    allCategories.unshift({ ...newCategory, games: [] });
+    renderCategories(allCategories);
+  } catch (err) { 
+    console.error('Add Category Error:', err);
+    Toast.error('Failed to add category'); 
+  }
+}
+
+function deleteCat(id, name) {
+  document.getElementById('del-cat-name').textContent = name;
+  document.getElementById('delete-modal').classList.remove('hidden');
+  document.getElementById('del-confirm-btn').onclick = async function() {
+    try {
+      await axios.delete('/api/categories/' + id);
+      Toast.success('Category deleted!');
+      closeDeleteModal();
+      
+      // Update local state
+      allCategories = allCategories.filter(c => c.id != id);
+      renderCategories(allCategories);
+    } catch { Toast.error('Failed to delete'); }
+  };
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await axios.get('/api/categories?limit=1000');
+    allCategories = res.data.data ? res.data.data : (res.data || []);
+
+    document.getElementById('admin-categories-loading').classList.add('hidden');
+    document.getElementById('admin-categories-content').classList.remove('hidden');
+
+    renderCategories(allCategories);
+  } catch (err) {
+    console.error('Failed to load categories:', err);
+    document.getElementById('admin-categories-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <p>Failed to load categories. Please try again.</p>
+      </div>
+    `;
+  }
+});
+</script>

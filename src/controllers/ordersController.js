@@ -96,9 +96,30 @@ const getAllOrders = async (req, res) => {
         const orders = await Orders.findAll({
             include: [
                 { model: Users, as: 'user', attributes: ['username', 'email'] },
-            ]
+                { 
+                    model: Order_Details, as: 'orderDetails',
+                    include: [{ model: Games, as: 'game', attributes: ['id', 'title'] }]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
         })
-        res.status(200).json(orders)
+        const ordersWithKeys = await Promise.all(orders.map(async (order) => {
+            const orderData = order.toJSON();
+            for (const detail of orderData.orderDetails) {
+                if (detail.game_key_id && typeof detail.game_key_id === 'string') {
+                    const keyIds = detail.game_key_id.split(',');
+                    const keys = await Game_Keys.findAll({
+                        where: { id: keyIds },
+                        attributes: ['id', 'game_id', 'secret_key', 'is_sold']
+                    });
+                    detail.gameKeys = keys;
+                } else {
+                    detail.gameKeys = [];
+                }
+            }
+            return orderData;
+        }));
+        res.status(200).json(ordersWithKeys)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -109,15 +130,17 @@ const getMyOrders = async (req, res) => {
         const userId = req.user.id
         const orders = await Orders.findAll({
             where: { user_id: userId },
-            attributes: ['id', 'total_amount', 'status'],
+            attributes: ['id', 'total_amount', 'status', 'createdAt'],
             include: [
                 {
                     model: Order_Details, as: 'orderDetails',
                     attributes: ['id', 'subtotal', 'game_key_id'],
+                    include: [{ model: Games, as: 'game', attributes: ['id', 'title', 'image_url'] }],
                     separate: true,
                     order: [['id', 'ASC']]
                 },
-            ]
+            ],
+            order: [['createdAt', 'DESC']]
         })
         
         const ordersWithKeys = await Promise.all(orders.map(async (order) => {
@@ -141,9 +164,9 @@ const getMyOrders = async (req, res) => {
         
         res.status(200).json(ordersWithKeys)
     } catch (error) {
-        res.status(500).json({ error: error.message })
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
 const getOrderById = async (req, res) => {
     try {

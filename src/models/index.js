@@ -94,7 +94,20 @@ Games.belongsToMany(Users, {
     as: 'favoritedBy'
 })
 
+// Add direct associations for Favorites model
+Favorites.belongsTo(Users, { foreignKey: 'user_id', as: 'user' })
+Favorites.belongsTo(Games, { foreignKey: 'game_id', as: 'game' })
 
+
+
+// 8. User ↔ Games (Many-to-Many through Cart)
+const Cart = require('./cart')(sequelize, DataTypes)
+
+Users.hasMany(Cart, { foreignKey: 'user_id', as: 'cartItems' })
+Cart.belongsTo(Users, { foreignKey: 'user_id', as: 'user' })
+
+Games.hasMany(Cart, { foreignKey: 'game_id', as: 'cartItems' })
+Cart.belongsTo(Games, { foreignKey: 'game_id', as: 'game' })
 
 module.exports = {
   sequelize,
@@ -103,5 +116,7 @@ module.exports = {
   Games,
   Orders,
   Order_Details,
-  Game_Keys
+  Game_Keys,
+  Cart,
+  Favorites
 }

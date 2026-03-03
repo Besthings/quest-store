@@ -8,5 +8,6 @@ router.get('/', authenticate, favoritesController.getMyFavorites)
 router.post('/', authenticate, favoritesController.addFavorite)
 router.delete('/:game_id', authenticate, favoritesController.removeFavorite)
 router.get('/check/:game_id', authenticate, favoritesController.checkFavorite)
+router.post('/toggle', authenticate, favoritesController.toggleFavorite)
 
 module.exports = router
