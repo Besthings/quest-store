@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js -e ejs,js,css",
+    "dev:backend": "nodemon backend.js -e js",
+    "dev:frontend": "nodemon frontend.js -e ejs,js,css",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "seed": "node src/database/seed.js"
   },
   "repository": {
@@ -16,6 +18,7 @@
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
@@ -26,6 +29,7 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "nodemon": "^3.1.11"
   },
   "keywords": [],

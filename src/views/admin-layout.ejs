@@ -15,6 +15,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Axios Configuration for Backend API -->
+  <script>
+    // Configure Axios base URL to point to Backend API
+    axios.defaults.baseURL = '<%= process.env.BACKEND_URL || "http://localhost:3010" %>';
+    axios.defaults.withCredentials = true; // Allow cookies for auth
+  </script>
+
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <script>
