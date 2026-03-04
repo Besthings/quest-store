@@ -3,13 +3,16 @@ const { Games } = require('../models')
 
 const createCategory = async (req, res) => {
     try {
-        const { categories_name, slug } = req.body;
-        const category = await Categories.create({ categories_name, slug });
+        let { category_name, slug } = req.body;
+        if (!slug && category_name) {
+            slug = category_name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+        }
+        const category = await Categories.create({ category_name, slug });
         res.status(201).json({
             message: 'Created category succesfully',
             category: {
                 id: category.id,
-                categories_name: category.categories_name,
+                category_name: category.category_name,
                 slug: category.slug
             }
         })
@@ -21,7 +24,7 @@ const createCategory = async (req, res) => {
 const getAllCategories = async (req, res) => {
     try {
         const categorys = await Categories.findAll({
-            attributes: ['id', 'categories_name', 'slug'],
+            attributes: ['id', 'category_name', 'slug'],
             order: [['id', 'ASC']]
         });
         res.status(200).json(categorys)
@@ -44,7 +47,13 @@ const updateCategory = async (req, res) => {
     try {
         const category = await Categories.findByPk(req.params.id)
         if (!category) return res.status(404).json({ error: 'Not found category' })
-        await category.update(req.body)
+        
+        const data = { ...req.body };
+        if (data.category_name && !data.slug) {
+            data.slug = data.category_name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+        }
+        
+        await category.update(data)
         res.status(200).json({ message: 'Updated category', category })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -68,9 +77,9 @@ const getGamesByCategory = async (req, res) => {
             include: [{
                 model: Games,
                 as: 'games',
-                attributes: ['id', 'game_name', 'price']
+                attributes: ['id', 'title', 'price']
             }],
-            order: [[{ model: Games, as: 'games' }, 'game_name', 'ASC']]
+            order: [[{ model: Games, as: 'games' }, 'title', 'ASC']]
         });
         res.status(200).json({ message: 'Retrieved games by category', category })
     } catch (error) {

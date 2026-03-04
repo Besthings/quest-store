@@ -1,0 +1,354 @@
+<%
+  /* helpers (keep for potential SSR fallbacks if needed, but primary will be axios) */
+  function fmt(n) { return n ? n.toLocaleString() : '0'; }
+%>
+
+<div id="home-content" class="min-h-screen">
+  <!-- Loading State -->
+  <div id="loading-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0f1e]">
+    <div class="text-center space-y-4">
+      <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+      <p class="text-blue-200 font-medium animate-pulse">Loading Quest Store...</p>
+    </div>
+  </div>
+
+  <div id="main-view" class="hidden">
+    <!-- Filtered Results Container -->
+    <div id="filtered-results" class="container mx-auto px-4 py-10 hidden">
+      <div class="flex items-center justify-between mb-8">
+        <h1 id="filter-title" class="text-2xl font-bold text-white">Results</h1>
+        <a href="/" class="text-gray-400 hover:text-white text-sm transition-colors">← Back</a>
+      </div>
+      <div id="filtered-games-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <!-- Axios will inject cards here -->
+      </div>
+      <div id="no-results" class="text-center py-24 text-gray-500 hidden">
+        <i data-lucide="gamepad-2" class="mx-auto h-16 w-16 mb-4 text-gray-700"></i>
+        <p class="text-lg">No games found.</p>
+        <a href="/" class="inline-block mt-4 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors">Browse All Games</a>
+      </div>
+    </div>
+
+    <!-- Default Home Container -->
+    <div id="default-home" class="space-y-14 pb-14">
+      <!-- Hero Section -->
+      <section id="hero-section" class="relative h-[420px] md:h-[500px] overflow-hidden hidden">
+        <img id="hero-bg" src="/images/arcraider.jpg" alt="Hero"
+             class="absolute inset-0 w-full h-full object-cover transition-all duration-700" />
+        <div class="absolute inset-0 bg-gradient-to-r from-[#0a0f1e] via-[#0a0f1e]/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0f1e] via-transparent to-transparent"></div>
+        <div class="relative container mx-auto px-4 h-full flex items-center">
+          <div class="max-w-xl space-y-5" id="hero-copy">
+            <h1 class="text-4xl md:text-5xl font-black text-white leading-tight drop-shadow-lg" id="hero-title">Loading...</h1>
+            <p class="text-white text-sm md:text-base line-clamp-2 leading-relaxed" id="hero-desc">...</p>
+            <div class="flex items-center gap-4" id="hero-price">
+              <!-- Hero price will be injected here -->
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="#" id="hero-link" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-colors inline-block">
+                View Details
+              </a>
+              <button id="hero-cart-btn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors font-semibold text-sm disabled:opacity-50">
+                <i data-lucide="shopping-cart" class="h-4 w-4"></i> Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Carousel dots injected via JS -->
+        <div id="hero-dots" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 pointer-events-auto"></div>
+      </section>
+
+      <!-- Featured Games -->
+      <section class="container mx-auto px-4">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2">
+            <i data-lucide="star" class="h-5 w-5 text-yellow-400"></i>
+            <h2 class="text-xl font-bold text-white">Featured Games</h2>
+          </div>
+          <a href="/?filter=popular" class="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            View all <i data-lucide="chevron-right" class="h-4 w-4"></i>
+          </a>
+        </div>
+        <div id="featured-games-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- Axios will inject cards here -->
+        </div>
+      </section>
+
+      <!-- Categories Banner -->
+      <section class="container mx-auto px-4">
+        <div class="flex items-center gap-2 mb-6">
+          <i data-lucide="tag" class="h-5 w-5 text-purple-400"></i>
+          <h2 class="text-xl font-bold text-white">Browse by Category</h2>
+        </div>
+        <div id="categories-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          <!-- Axios will inject categories here -->
+        </div>
+      </section>
+
+      <!-- All Games -->
+      <section class="container mx-auto px-4">
+        <div class="flex items-center gap-2 mb-6">
+          <i data-lucide="gamepad-2" class="h-5 w-5 text-blue-400"></i>
+          <h2 class="text-xl font-bold text-white">All Games</h2>
+        </div>
+        <div id="all-games-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- Axios will inject cards here -->
+        </div>
+        <div id="pagination-container"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes heroBgSlideLeftIn { from { opacity: .78; transform: scale(1.06) translateX(2%); } to { opacity: 1; transform: scale(1) translateX(0); } }
+  @keyframes heroBgSlideRightIn { from { opacity: .78; transform: scale(1.06) translateX(-2%); } to { opacity: 1; transform: scale(1) translateX(0); } }
+  @keyframes heroCopySlideLeftIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes heroCopySlideRightIn { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+  .hero-bg-slide-left { animation: heroBgSlideLeftIn .45s ease both; }
+  .hero-bg-slide-right { animation: heroBgSlideRightIn .45s ease both; }
+  .hero-copy-slide-left { animation: heroCopySlideLeftIn .4s ease both; }
+  .hero-copy-slide-right { animation: heroCopySlideRightIn .4s ease both; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    if (typeof fetchUserFavorites === 'function') await fetchUserFavorites();
+  } catch (_) {}
+  let currentPage = 1;
+  const limit = 12;
+  let heroTimer = null;
+
+  const queryParams = new URLSearchParams(window.location.search);
+  const q = queryParams.get('q') || '';
+  const categorySlug = queryParams.get('category') || '';
+  const filter = queryParams.get('filter') || '';
+  const isFiltered = !!(q || categorySlug || filter);
+
+  // Helper: Create Game Card HTML
+  function createGameCard(game) {
+    const dp = game.discount ? Math.round(game.price * (1 - game.discount / 100)) : game.price;
+    const stock = game.stock_quantity || 0;
+    const imageUrl = game.image_url || '/images/arcraider.jpg';
+    
+    const isFavorited = userFavorites.includes(game.id);
+    
+    return `
+      <a href="/game/${game.id}" class="group relative flex flex-col bg-white/5 border border-white/[0.08] rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-900/20 transition-all duration-300">
+        <div class="relative aspect-[16/10] overflow-hidden">
+          <img src="${imageUrl}" alt="${game.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          
+          <!-- Favorite Button -->
+          <button onclick="event.preventDefault();event.stopPropagation();toggleFavorite('${game.id}', this)" class="absolute top-2 left-2 p-2 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all z-10" style="color:white">
+            <i data-lucide="heart" class="h-4 w-4 ${isFavorited ? 'fill-red-500 text-red-500' : ''}"></i>
+          </button>
+
+          <button onclick="event.preventDefault();event.stopPropagation();openQuickView('${game.id}')" class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md text-xs font-bold px-4 py-2 rounded-full border border-white/30 hover:bg-white/30 transition-colors" style="color:white">
+              <i data-lucide="eye" class="h-3.5 w-3.5"></i> Quick View
+            </span>
+          </button>
+          <div class="absolute bottom-2 right-2">
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-sm ${stock > 0 ? 'bg-green-900/70 text-green-400' : 'bg-red-900/70 text-red-400'}">
+              ${stock > 0 ? stock + ' in stock' : 'SOLD OUT'}
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-col flex-1 p-4 gap-3">
+          <h3 class="font-semibold text-white text-sm line-clamp-1 group-hover:text-blue-300 transition-colors">${game.title}</h3>
+          <div class="mt-auto flex items-center justify-between">
+            <div>
+              ${game.discount ? `
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-white font-bold">฿${dp.toLocaleString()}</span>
+                  <span class="text-gray-500 text-xs line-through">฿${game.price.toLocaleString()}</span>
+                </div>
+              ` : `<span class="text-white font-bold">฿${game.price.toLocaleString()}</span>`}
+            </div>
+            <button onclick="event.preventDefault();addToCart('${game.id}')" ${stock === 0 ? 'disabled' : ''} class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${stock > 0 ? 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20 hover:shadow-blue-500/30' : 'bg-gray-800 cursor-not-allowed'}" style="color:white">
+              <i data-lucide="shopping-cart" class="h-3.5 w-3.5"></i>
+              ${stock > 0 ? 'Add' : 'Sold Out'}
+            </button>
+          </div>
+        </div>
+      </a>
+    `;
+  }
+  // Data Fetching logic moved to a reusable function for pagination support
+  const fetchAndRenderBaseData = async (page = 1) => {
+    try {
+      // 1. Fetch Games
+      const gamesRes = await axios.get(`/api/games`, { params: { q, category: categorySlug, filter, page, limit } });
+      const { data: games, totalPages } = gamesRes.data;
+
+      // 2. Fetch Categories
+      const categoriesRes = await axios.get('/api/categories');
+      const categories = categoriesRes.data;
+
+    // View Logic
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('main-view').classList.remove('hidden');
+
+    if (isFiltered) {
+      document.getElementById('filtered-results').classList.remove('hidden');
+      document.getElementById('default-home').classList.add('hidden');
+      
+      const grid = document.getElementById('filtered-games-grid');
+      const title = document.getElementById('filter-title');
+      
+      if (q) title.innerText = `Results for "${q}"`;
+      else if (categorySlug) {
+        const cat = categories.find(c => c.slug == categorySlug);
+        title.innerText = `Category: ${cat ? cat.category_name : 'Games'}`;
+      } else if (filter === 'new') title.innerText = 'New Releases';
+      else title.innerText = 'Popular Games';
+
+      if (games.length > 0) {
+        grid.innerHTML = games.map(g => createGameCard(g)).join('');
+      } else {
+        grid.classList.add('hidden');
+        document.getElementById('no-results').classList.remove('hidden');
+      }
+    } else {
+      document.getElementById('default-home').classList.remove('hidden');
+      
+      // Hero Logic
+      const heroGames = games.slice(0, 4);
+      if (heroGames.length > 0) {
+        const heroSection = document.getElementById('hero-section');
+        heroSection.classList.remove('hidden');
+        
+        let heroIdx = 0;
+        const setHero = (i) => {
+          const prev = heroIdx;
+          heroIdx = i;
+          const h = heroGames[i];
+          const dp = h.discount ? Math.round(h.price * (1 - h.discount / 100)) : h.price;
+          
+          document.getElementById('hero-bg').src = h.image_url || '/images/arcraider.jpg';
+          document.getElementById('hero-title').textContent = h.title;
+          document.getElementById('hero-desc').textContent = h.description || 'No description available';
+          document.getElementById('hero-link').href = '/game/' + h.id;
+          
+          const cartBtn = document.getElementById('hero-cart-btn');
+          cartBtn.onclick = () => addToCart(h.id);
+          if (h.stock_quantity === 0) {
+            cartBtn.disabled = true;
+            cartBtn.innerHTML = '<i data-lucide="shopping-cart" class="h-4 w-4"></i> Sold Out';
+          } else {
+            cartBtn.disabled = false;
+            cartBtn.innerHTML = '<i data-lucide="shopping-cart" class="h-4 w-4"></i> Add to Cart';
+          }
+
+          const priceEl = document.getElementById('hero-price');
+          priceEl.innerHTML = h.discount 
+            ? `<span class="text-3xl font-black text-white">฿${dp.toLocaleString()}</span><span class="text-white text-lg line-through">฿${h.price.toLocaleString()}</span>`
+            : `<span class="text-3xl font-black text-white">฿${h.price.toLocaleString()}</span>`;
+          
+          // Dots
+          const dots = document.getElementById('hero-dots');
+          dots.innerHTML = heroGames.map((_, dotIdx) => `
+            <button onclick="setHero(${dotIdx})" class="hero-dot transition-all duration-300 ${dotIdx === i ? 'w-6 h-2.5 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,.55)]' : 'w-2.5 h-2.5 rounded-full bg-white/45 hover:bg-white/70'}"></button>
+          `).join('');
+
+          // Animation
+          const copy = document.getElementById('hero-copy');
+          copy.classList.remove('hero-copy-slide-left', 'hero-copy-slide-right');
+          void copy.offsetWidth;
+          copy.classList.add(i >= prev ? 'hero-copy-slide-left' : 'hero-copy-slide-right');
+          
+          lucide.createIcons();
+        };
+
+        window.setHero = (i) => {
+          setHero(i);
+          if (heroTimer) clearInterval(heroTimer);
+          heroTimer = setInterval(() => setHero((heroIdx + 1) % heroGames.length), 5000);
+        };
+        
+        setHero(0);
+        if (heroTimer) clearInterval(heroTimer);
+        heroTimer = setInterval(() => setHero((heroIdx + 1) % heroGames.length), 5000);
+      }
+
+      // Featured Games (First 4)
+      document.getElementById('featured-games-grid').innerHTML = games.slice(0, 4).map(g => createGameCard(g)).join('');
+      
+      // All Games Area
+      document.getElementById('all-games-grid').innerHTML = games.map(g => createGameCard(g)).join('');
+      renderPagination(totalPages, page);
+
+      // Categories
+      const catColors = [
+        'from-blue-600/30 to-blue-900/30 border-blue-700/30 text-blue-300',
+        'from-purple-600/30 to-purple-900/30 border-purple-700/30 text-purple-300',
+        'from-green-600/30 to-green-900/30 border-green-700/30 text-green-300',
+        'from-orange-600/30 to-orange-900/30 border-orange-700/30 text-orange-300',
+        'from-red-600/30 to-red-900/30 border-red-700/30 text-red-300',
+        'from-cyan-600/30 to-cyan-900/30 border-cyan-700/30 text-cyan-300',
+      ];
+      document.getElementById('categories-grid').innerHTML = categories.map((cat, i) => `
+        <a href="/?category=${cat.slug}" class="flex flex-col items-center justify-center py-4 px-2 rounded-xl border bg-gradient-to-br transition-all hover:scale-105 ${catColors[i % catColors.length]}">
+          <span class="text-sm font-bold truncate w-full text-center px-2">${cat.category_name}</span>
+        </a>
+      `).join('');
+    }
+
+    lucide.createIcons();
+    } catch (err) {
+      console.error('Data fetch error:', err);
+    }
+  };
+
+  const renderPagination = (totalPages, current) => {
+    const container = document.getElementById('pagination-container');
+    if (!container) return;
+    
+    if (totalPages <= 1) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let html = `<div class="flex items-center justify-center gap-2 mt-8">`;
+    
+    html += `<button onclick="changePage(${current - 1})" ${current === 1 ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white text-sm"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        // Simple logic for nearby pages to avoid huge pagination list
+        if (i === 1 || i === totalPages || (i >= current - 1 && i <= current + 1)) {
+            html += `<button onclick="changePage(${i})" class="w-10 h-10 rounded-lg border text-sm transition-all ${i === current ? 'border-blue-500 bg-blue-500/20 text-blue-400 font-bold' : 'border-white/10 bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}">${i}</button>`;
+        } else if (i === current - 2 || i === current + 2) {
+            html += `<span class="text-gray-500 px-2">...</span>`;
+        }
+    }
+
+    html += `<button onclick="changePage(${current + 1})" ${current === totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white text-sm"><i data-lucide="chevron-right" class="h-4 w-4"></i></button>`;
+    html += `</div>`;
+    
+    container.innerHTML = html;
+  };
+
+  window.changePage = async (page) => {
+    // Scroll to All games section smoothly
+    document.getElementById('all-games-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('bg-opacity-50'); // Make it semi transparent
+    
+    await fetchAndRenderBaseData(page);
+    
+    overlay.classList.add('hidden');
+    overlay.classList.remove('bg-opacity-50');
+  };
+
+  // Initial fetch on page load
+  try {
+    await fetchAndRenderBaseData(currentPage);
+  } catch (err) {
+    console.error('Initial render failed:', err);
+  }
+});
+</script>

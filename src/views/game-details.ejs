@@ -1,0 +1,208 @@
+<div id="game-details-loading" class="min-h-[70vh] flex items-center justify-center">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 font-medium animate-pulse">Fetching game details...</p>
+  </div>
+</div>
+
+<div id="game-details-content" class="min-h-screen pb-16 hidden">
+  <!-- Back -->
+  <div class="container mx-auto px-4 py-4">
+    <a href="javascript:history.back()" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Back
+    </a>
+  </div>
+
+  <div class="container mx-auto px-4 space-y-10">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+      <!-- ── Left: Gallery ── -->
+      <div class="lg:col-span-3 space-y-3">
+        <!-- Main Image -->
+        <div class="relative rounded-2xl overflow-hidden aspect-video bg-black group shadow-2xl shadow-black/50">
+          <img id="main-screenshot" src="/images/arcraider.jpg" alt="Game Title"
+               class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-3">
+          <h2 class="text-lg font-bold text-white">About this game</h2>
+          <p id="game-description" class="text-gray-300 text-sm leading-relaxed">...</p>
+          <div id="game-tags" class="flex flex-wrap gap-2 pt-2">
+            <span class="inline-flex items-center border border-blue-900/50 text-blue-300 text-xs px-2.5 py-1 rounded-full">Digital Key</span>
+            <span class="inline-flex items-center border border-blue-900/50 text-blue-300 text-xs px-2.5 py-1 rounded-full">Instant Delivery</span>
+            <span class="inline-flex items-center border border-blue-900/50 text-blue-300 text-xs px-2.5 py-1 rounded-full">Global Activation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right: Purchase Panel ── -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-5 sticky top-20">
+          <!-- Title & Fav -->
+          <div class="flex items-start justify-between gap-4">
+            <h1 id="game-title" class="text-2xl font-black text-body leading-tight">...</h1>
+            <button id="add-favorite-btn" class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+              <i data-lucide="heart" class="h-5 w-5"></i>
+            </button>
+          </div>
+
+          <!-- Price -->
+          <div id="price-container" class="space-y-1">
+            <!-- Price injected here -->
+          </div>
+
+          <!-- Stock -->
+          <div class="flex items-center gap-2">
+            <span id="stock-dot" class="w-2 h-2 rounded-full bg-gray-400"></span>
+            <span id="stock-text" class="text-sm font-medium text-gray-400">Checking stock...</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="space-y-2">
+            <button id="add-to-cart-btn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-500/30 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed">
+              <i data-lucide="shopping-cart" class="h-4 w-4"></i> Add to Cart
+            </button>
+            <button onclick="navigator.clipboard.writeText(location.href);Toast.success('Link copied!')"
+                    class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-colors text-sm">
+              <i data-lucide="share-2" class="h-4 w-4"></i> Share
+            </button>
+          </div>
+
+          <!-- Info -->
+          <div class="space-y-2 pt-2 border-t border-white/[0.08] text-sm">
+            <div class="flex justify-between text-gray-400"><span>Platform</span><span class="text-body">PC (Windows)</span></div>
+            <div class="flex justify-between text-gray-400"><span>Category</span><span id="game-category-text" class="text-body">—</span></div>
+            <div class="flex justify-between text-gray-400"><span>Delivery</span><span class="text-green-400">Instant</span></div>
+          </div>
+
+          <p class="text-xs text-gray-600 text-center">🔒 Secure checkout · 100% genuine keys</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Related Games ── -->
+    <div id="related-section" class="space-y-5 hidden">
+      <h2 class="text-xl font-bold text-white">Related Games</h2>
+      <div id="related-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <!-- Related injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load favorites separately — failure must NOT block page rendering
+  try {
+    if (typeof fetchUserFavorites === 'function') await fetchUserFavorites();
+  } catch (_) {}
+
+  const gameId = '<%= gameId %>';
+  if (!gameId) return;
+
+  try {
+    const res = await axios.get(`/api/games/${gameId}`);
+    const { game, related } = res.data;
+
+    if (!game) throw new Error('Game not found');
+
+    const dp = game.discount ? Math.round(game.price * (1 - game.discount / 100)) : game.price;
+    const stock = game.stock_quantity || 0;
+    const inStock = stock > 0;
+
+    // Title & Tags
+    document.title = `${game.title} – Quest Store`;
+    document.getElementById('game-title').textContent = game.title;
+    document.getElementById('game-description').textContent = game.description || 'No description available.';
+    document.getElementById('main-screenshot').src = game.image_url || '/images/arcraider.jpg';
+    document.getElementById('main-screenshot').alt = game.title;
+
+    if (game.category) {
+      document.getElementById('game-category-text').textContent = game.category.category_name;
+      const catTag = document.createElement('span');
+      catTag.className = 'inline-flex items-center border border-purple-900/50 text-purple-300 text-xs px-2.5 py-1 rounded-full';
+      catTag.textContent = game.category.category_name;
+      document.getElementById('game-tags').appendChild(catTag);
+    }
+
+    // Price
+    const priceContainer = document.getElementById('price-container');
+    if (game.discount) {
+      priceContainer.innerHTML = `
+        <div class="text-gray-400 text-sm line-through">฿${game.price.toLocaleString()}</div>
+        <div class="text-4xl font-black text-body">฿${dp.toLocaleString()}</div>
+        <div class="text-green-400 text-sm font-semibold">You save ฿${(game.price - dp).toLocaleString()}</div>
+      `;
+    } else {
+      priceContainer.innerHTML = `<div class="text-4xl font-black text-body">฿${game.price.toLocaleString()}</div>`;
+    }
+
+    // Stock
+    const stockDot = document.getElementById('stock-dot');
+    const stockText = document.getElementById('stock-text');
+    stockDot.className = `w-2 h-2 rounded-full ${inStock ? 'bg-green-400' : 'bg-red-400'}`;
+    stockText.className = `text-sm font-medium ${inStock ? 'text-green-400' : 'text-red-400'}`;
+    stockText.textContent = inStock ? `${stock} units in stock` : 'Out of stock';
+
+    // Actions
+    const cartBtn = document.getElementById('add-to-cart-btn');
+    cartBtn.onclick = () => addToCart(game.id);
+    if (!inStock) {
+      cartBtn.disabled = true;
+      cartBtn.innerHTML = '<i data-lucide="shopping-cart" class="h-4 w-4"></i> Sold Out';
+    }
+
+    const favBtn = document.getElementById('add-favorite-btn');
+    if (favBtn) {
+      try {
+        const isFav = typeof userFavorites !== 'undefined' && Array.isArray(userFavorites) && userFavorites.includes(game.id);
+        const favIcon = favBtn.querySelector('i, svg');
+        if (isFav && favIcon) {
+          favIcon.classList.add('fill-red-500', 'text-red-500');
+        }
+        favBtn.onclick = () => toggleFavorite(game.id, favBtn);
+      } catch (_) {}
+    }
+
+    // Related Games
+    if (related && related.length > 0) {
+      document.getElementById('related-section').classList.remove('hidden');
+      const grid = document.getElementById('related-grid');
+      grid.innerHTML = related.map(g => {
+        const rdp = g.discount ? Math.round(g.price * (1 - g.discount / 100)) : g.price;
+        return `
+          <a href="/game/${g.id}" class="group flex flex-col bg-white/5 border border-white/[0.08] rounded-xl overflow-hidden hover:border-blue-500/50 transition-all">
+            <div class="aspect-[16/9] overflow-hidden">
+              <img src="${g.image_url || '/images/arcraider.jpg'}" alt="${g.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+            </div>
+            <div class="p-3">
+              <p class="text-sm font-semibold text-body line-clamp-1 group-hover:text-blue-300 transition-colors">${g.title}</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-sm font-bold text-body">฿${rdp.toLocaleString()}</span>
+                ${g.discount ? `<span class="text-[10px] text-green-400 font-bold bg-green-500/10 px-1.5 rounded">-${g.discount}%</span>` : ''}
+              </div>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
+
+    // Done
+    document.getElementById('game-details-loading').classList.add('hidden');
+    document.getElementById('game-details-content').classList.remove('hidden');
+    lucide.createIcons();
+  } catch (err) {
+    console.error('Game details error:', err.message, err.stack);
+    document.getElementById('game-details-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <i data-lucide="alert-circle" class="h-12 w-12 mx-auto mb-2"></i>
+        <p>Game not found or failed to load.</p>
+        <a href="/" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg">Back to Home</a>
+      </div>
+    `;
+    lucide.createIcons();
+  }
+});
+</script>

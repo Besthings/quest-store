@@ -22,11 +22,16 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         stock_quantity: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
+            type: DataTypes.VIRTUAL,
+            get() {
+                // Returns count of unsold keys if keys association is loaded
+                if (this.keys) {
+                    return this.keys.filter(k => k.is_sold === false).length;
+                }
+                return 0;
+            }
         },
-        imagePath: {
+        image_url: {
             type: DataTypes.STRING,
             allowNull: true,
         }
