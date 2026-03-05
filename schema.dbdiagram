@@ -1,0 +1,237 @@
+{
+  "version": "1.0.0",
+  "darkMode": true,
+  "gridEnabling": true,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "Users",
+      "schemaName": "public",
+      "x": 16,
+      "y": 16
+    },
+    {
+      "name": "Categories",
+      "schemaName": "public",
+      "x": 16,
+      "y": 312
+    },
+    {
+      "name": "Games",
+      "schemaName": "public",
+      "x": 512,
+      "y": 280
+    },
+    {
+      "name": "Orders",
+      "schemaName": "public",
+      "x": 512,
+      "y": 16
+    },
+    {
+      "name": "OrderDetails",
+      "schemaName": "public",
+      "x": 1568,
+      "y": 16
+    },
+    {
+      "name": "GameKeys",
+      "schemaName": "public",
+      "x": 1088,
+      "y": 288
+    },
+    {
+      "name": "Favorites",
+      "schemaName": "public",
+      "x": 1084.6337890625,
+      "y": -169.05976987356036
+    },
+    {
+      "name": "Cart",
+      "schemaName": "public",
+      "x": 1088,
+      "y": 624
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "category_id"
+      ],
+      "firstTableName": "Games",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Categories",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "user_id"
+      ],
+      "firstTableName": "Orders",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Users",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "order_id"
+      ],
+      "firstTableName": "OrderDetails",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Orders",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "game_id"
+      ],
+      "firstTableName": "OrderDetails",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Games",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": [
+        {
+          "x": 1047.7476782582994,
+          "y": 128
+        },
+        {
+          "x": 1047.7476782582994,
+          "y": 328
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "game_id"
+      ],
+      "firstTableName": "GameKeys",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Games",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "detail_id"
+      ],
+      "firstTableName": "GameKeys",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "OrderDetails",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "user_id"
+      ],
+      "firstTableName": "Favorites",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Users",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": [
+        {
+          "x": 366.7632101057756,
+          "y": -89.05976987356036
+        },
+        {
+          "x": 366.7632101057756,
+          "y": 64
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "game_id"
+      ],
+      "firstTableName": "Favorites",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Games",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "user_id"
+      ],
+      "firstTableName": "Cart",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Users",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": [
+        {
+          "x": 365.38427788917096,
+          "y": 704
+        },
+        {
+          "x": 365.38427788917096,
+          "y": 64
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "game_id"
+      ],
+      "firstTableName": "Cart",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "Games",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    }
+  ]
+}

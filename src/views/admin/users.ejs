@@ -184,7 +184,7 @@ function filterUsers() {
 
 async function changeRole(id, role) {
   try {
-    await axios.put('/api/users/' + id + '/role', { role: role });
+    await axios.put('/api/users/' + id , { role: role });
     Toast.success('Role updated!');
     
     // Update local state and stats

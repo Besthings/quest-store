@@ -1,0 +1,96 @@
+Project QuestStore {
+  database_type: 'SQLite'
+  Note: 'Database schema for Quest Store project'
+}
+
+Table Users {
+  id integer [primary key, increment]
+  username string [not null]
+  password string [not null]
+  email string [unique, not null]
+  role string [default: 'user']
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Categories {
+  id integer [primary key, increment]
+  category_name string [not null, unique]
+  slug string [unique, not null]
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Games {
+  id integer [primary key, increment]
+  category_id integer [not null]
+  title string [not null]
+  description text [not null]
+  price integer [not null]
+  image_url string
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Orders {
+  id integer [primary key, increment]
+  user_id integer [not null]
+  total_amount decimal(12,2) [not null, default: 0]
+  status string [default: 'pending']
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table OrderDetails {
+  id integer [primary key, increment]
+  order_id integer [not null]
+  game_id integer [not null]
+  game_key_id string
+  subtotal integer [not null]
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table GameKeys {
+  id integer [primary key, increment]
+  game_id integer [not null]
+  detail_id integer
+  is_sold boolean [not null]
+  secret_key string [unique, not null]
+  sold_at timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Favorites {
+  id integer [primary key, increment]
+  user_id integer [not null]
+  game_id integer [not null]
+  createdAt timestamp
+  updatedAt timestamp
+
+  indexes {
+    (user_id, game_id) [unique]
+  }
+}
+
+Table Cart {
+  id integer [primary key, increment]
+  user_id integer [not null]
+  game_id integer [not null]
+  quantity integer [not null, default: 1]
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+// Relationships
+Ref: Games.category_id > Categories.id
+Ref: Orders.user_id > Users.id
+Ref: OrderDetails.order_id > Orders.id
+Ref: OrderDetails.game_id > Games.id
+Ref: GameKeys.game_id > Games.id
+Ref: GameKeys.detail_id - OrderDetails.id
+Ref: Favorites.user_id > Users.id
+Ref: Favorites.game_id > Games.id
+Ref: Cart.user_id > Users.id
+Ref: Cart.game_id > Games.id
