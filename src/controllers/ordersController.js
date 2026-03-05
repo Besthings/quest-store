@@ -98,7 +98,7 @@ const getAllOrders = async (req, res) => {
                 { model: Users, as: 'user', attributes: ['username', 'email'] },
                 { 
                     model: Order_Details, as: 'orderDetails',
-                    include: [{ model: Games, as: 'game', attributes: ['id', 'title'] }]
+                    include: [{ model: Games, as: 'game', attributes: ['id', 'title', 'image_url'] }]
                 }
             ],
             order: [['createdAt', 'DESC']]

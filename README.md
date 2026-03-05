@@ -135,11 +135,10 @@ quest-store/
 │       │   └── theme.css
 │       ├── js/
 │       │   ├── app.js
-│       │   ├── allgame.js
 │       │   ├── login.js
 │       │   ├── toast.js
-│       │   └── api/
-│       │       └── authApi.js
+│       │
+│       │
 │       └── images/
 ```
 
@@ -149,7 +148,7 @@ quest-store/
 
 ### Prerequisites
 
-- Node.js v14+ 
+- Node.js v14+
 - npm v6+
 - Git Bash (for running commands on Windows)
 - SQLite3
@@ -157,11 +156,13 @@ quest-store/
 ### Installation
 
 1. **Clone or extract the project:**
+
    ```bash
    cd quest-store
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
@@ -169,12 +170,13 @@ quest-store/
 3. **Configure environment variables:**
 
    The `.env` file is included with default settings:
+
    ```env
    # Backend Configuration
    BACKEND_PORT=3010
    BACKEND_URL=http://localhost:3010
 
-   # Frontend Configuration  
+   # Frontend Configuration
    FRONTEND_PORT=5500
    FRONTEND_URL=http://localhost:5500
 
@@ -186,6 +188,7 @@ quest-store/
    ```
 
 4. **Seed the database (optional):**
+
    ```bash
    npm run seed
    ```
@@ -207,22 +210,27 @@ npm run dev
 ```
 
 This starts:
+
 - 🎨 Frontend on `http://localhost:5500`
 - 📡 Backend on `http://localhost:3010`
 
 ### Option 2: Run Servers Separately
 
 **Terminal 1 - Backend API:**
+
 ```bash
 npm run dev:backend
 ```
+
 - Backend API runs on `http://localhost:3010`
 - Use `/health` endpoint to verify: `http://localhost:3010/health`
 
 **Terminal 2 - Frontend:**
+
 ```bash
 npm run dev:frontend
 ```
+
 - Frontend runs on `http://localhost:5500`
 
 ---
@@ -230,53 +238,55 @@ npm run dev:frontend
 ## 🌐 Available URLs
 
 ### Frontend
-| URL | Description |
-|-----|-------------|
-| `http://localhost:5500/` | Home Page |
-| `http://localhost:5500/login` | Login Page |
-| `http://localhost:5500/cart` | Shopping Cart |
-| `http://localhost:5500/checkout` | Checkout |
-| `http://localhost:5500/profile` | User Profile |
-| `http://localhost:5500/about` | About Page |
-| `http://localhost:5500/admin` | Admin Dashboard |
-| `http://localhost:5500/admin/users` | User Management |
+
+| URL                                      | Description         |
+| ---------------------------------------- | ------------------- |
+| `http://localhost:5500/`                 | Home Page           |
+| `http://localhost:5500/login`            | Login Page          |
+| `http://localhost:5500/cart`             | Shopping Cart       |
+| `http://localhost:5500/checkout`         | Checkout            |
+| `http://localhost:5500/profile`          | User Profile        |
+| `http://localhost:5500/about`            | About Page          |
+| `http://localhost:5500/admin`            | Admin Dashboard     |
+| `http://localhost:5500/admin/users`      | User Management     |
 | `http://localhost:5500/admin/categories` | Category Management |
-| `http://localhost:5500/admin/games` | Game Management |
-| `http://localhost:5500/admin/orders` | Order Management |
-| `http://localhost:5500/admin/reports` | Reports |
+| `http://localhost:5500/admin/games`      | Game Management     |
+| `http://localhost:5500/admin/orders`     | Order Management    |
+| `http://localhost:5500/admin/reports`    | Reports             |
 
 ### Backend API
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| **Users** |
-| POST | `/api/users/register` | User registration |
-| POST | `/api/users/login` | User login |
-| GET | `/api/users/me` | Get current user |
-| GET | `/api/users` | Get all users (Admin) |
-| **Games** |
-| GET | `/api/games` | Get all games |
-| GET | `/api/games/:id` | Get game details |
-| POST | `/api/games` | Create game (Admin) |
-| PUT | `/api/games/:id` | Update game (Admin) |
-| DELETE | `/api/games/:id` | Delete game (Admin) |
+
+| Method         | Endpoint                | Description             |
+| -------------- | ----------------------- | ----------------------- |
+| GET            | `/health`               | Health check            |
+| **Users**      |
+| POST           | `/api/users/register`   | User registration       |
+| POST           | `/api/users/login`      | User login              |
+| GET            | `/api/users/me`         | Get current user        |
+| GET            | `/api/users`            | Get all users (Admin)   |
+| **Games**      |
+| GET            | `/api/games`            | Get all games           |
+| GET            | `/api/games/:id`        | Get game details        |
+| POST           | `/api/games`            | Create game (Admin)     |
+| PUT            | `/api/games/:id`        | Update game (Admin)     |
+| DELETE         | `/api/games/:id`        | Delete game (Admin)     |
 | **Categories** |
-| GET | `/api/categories` | Get all categories |
-| POST | `/api/categories` | Create category (Admin) |
-| PUT | `/api/categories/:id` | Update category (Admin) |
-| DELETE | `/api/categories/:id` | Delete category (Admin) |
-| **Cart** |
-| GET | `/api/cart` | Get user's cart |
-| POST | `/api/cart` | Add game to cart |
-| DELETE | `/api/cart/:gameId` | Remove from cart |
-| DELETE | `/api/cart` | Clear cart |
-| POST | `/api/cart/checkout` | Checkout |
-| **Favorites** |
-| GET | `/api/favorites` | Get user's favorites |
-| POST | `/api/favorites/toggle` | Toggle favorite |
-| **Orders** |
-| GET | `/api/orders` | Get user's orders |
-| GET | `/api/orders/:id` | Get order details |
+| GET            | `/api/categories`       | Get all categories      |
+| POST           | `/api/categories`       | Create category (Admin) |
+| PUT            | `/api/categories/:id`   | Update category (Admin) |
+| DELETE         | `/api/categories/:id`   | Delete category (Admin) |
+| **Cart**       |
+| GET            | `/api/cart`             | Get user's cart         |
+| POST           | `/api/cart`             | Add game to cart        |
+| DELETE         | `/api/cart/:gameId`     | Remove from cart        |
+| DELETE         | `/api/cart`             | Clear cart              |
+| POST           | `/api/cart/checkout`    | Checkout                |
+| **Favorites**  |
+| GET            | `/api/favorites`        | Get user's favorites    |
+| POST           | `/api/favorites/toggle` | Toggle favorite         |
+| **Orders**     |
+| GET            | `/api/orders`           | Get user's orders       |
+| GET            | `/api/orders/:id`       | Get order details       |
 
 ---
 
@@ -311,51 +321,58 @@ Password: AdminPass123
 ## 🗄️ Database Schema
 
 ### Users
+
 ```javascript
 {
-  id, username, email, password (hashed), role, createdAt, updatedAt
+  (id, username, email, password(hashed), role, createdAt, updatedAt);
 }
 ```
 
 ### Games
+
 ```javascript
 {
-  id, title, description, price, category_id, image_url, createdAt, updatedAt
+  (id, title, description, price, category_id, image_url, createdAt, updatedAt);
 }
 ```
 
 ### Categories
+
 ```javascript
 {
-  id, category_name, slug, description, createdAt, updatedAt
+  (id, category_name, slug, description, createdAt, updatedAt);
 }
 ```
 
 ### Orders
+
 ```javascript
 {
-  id, user_id, total_price, status, createdAt, updatedAt
+  (id, user_id, total_price, status, createdAt, updatedAt);
 }
 ```
 
 ### Cart
+
 ```javascript
 {
-  id, user_id, game_id, quantity, createdAt, updatedAt
+  (id, user_id, game_id, quantity, createdAt, updatedAt);
 }
 ```
 
 ### Favorites
+
 ```javascript
 {
-  id, user_id, game_id, createdAt, updatedAt
+  (id, user_id, game_id, createdAt, updatedAt);
 }
 ```
 
 ### Game Keys
+
 ```javascript
 {
-  id, game_id, key_code, is_used, sold_at, user_id, createdAt, updatedAt
+  (id, game_id, key_code, is_used, sold_at, user_id, createdAt, updatedAt);
 }
 ```
 
@@ -364,6 +381,7 @@ Password: AdminPass123
 ## 🛠️ Technologies Used
 
 ### Frontend
+
 - **Express.js** - Web framework
 - **EJS** - Template engine
 - **Axios** - HTTP client
@@ -371,6 +389,7 @@ Password: AdminPass123
 - **Lucide Icons** - Icon library
 
 ### Backend
+
 - **Express.js** - REST API framework
 - **Sequelize** - ORM
 - **SQLite3** - Database
@@ -379,6 +398,7 @@ Password: AdminPass123
 - **CORS** - Cross-Origin Resource Sharing
 
 ### DevTools
+
 - **Nodemon** - Auto-restart on file changes
 - **Concurrently** - Run multiple scripts in parallel
 
@@ -399,25 +419,33 @@ npm test                # Run tests (if configured)
 ## 🐛 Troubleshooting
 
 ### Issue: "Frontend showing 404 for API calls"
-**Solution:** 
+
+**Solution:**
+
 - Ensure backend is running on port 3010
 - Check `.env` file has `BACKEND_URL=http://localhost:3010`
 - Verify both `layout.ejs` and `admin-layout.ejs` have axios configuration
 
 ### Issue: "CORS errors when calling API"
+
 **Solution:**
+
 - Backend CORS is configured for `http://localhost:5500`
 - If running on different host, update `FRONTEND_URL` in `.env`
 - Ensure credentials flag is enabled: `axios.defaults.withCredentials = true`
 
 ### Issue: "Database file not found"
+
 **Solution:**
+
 ```bash
 npm run seed  # Creates and populates database.sqlite
 ```
 
 ### Issue: "JWT token invalid"
+
 **Solution:**
+
 - Clear browser cookies and login again
 - Check `JWT_SECRET` in `.env` matches on both servers
 - Ensure token is sent with `withCredentials: true` in axios
@@ -442,6 +470,7 @@ npm run seed  # Creates and populates database.sqlite
 ## 📚 API Documentation
 
 ### POST /api/users/login
+
 ```javascript
 // Request
 {
@@ -458,6 +487,7 @@ npm run seed  # Creates and populates database.sqlite
 ```
 
 ### POST /api/cart
+
 ```javascript
 // Request
 {
@@ -472,6 +502,7 @@ npm run seed  # Creates and populates database.sqlite
 ```
 
 ### POST /api/cart/checkout
+
 ```javascript
 // Response
 {
@@ -504,6 +535,7 @@ Contributions are welcome! Feel free to submit issues and pull requests.
 ## 📞 Support
 
 For issues or questions:
+
 1. Check the troubleshooting section above
 2. Review console errors (F12 in browser)
 3. Check backend logs in terminal

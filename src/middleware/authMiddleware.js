@@ -41,7 +41,7 @@ const setUserLocals = async (req, res, next) => {
                 // JWT token uses 'id' (from usersController), not 'userId'
                 const userId = decoded.id || decoded.userId
                 currentUser = await Users.findByPk(userId, {
-                    attributes: ['id', 'username', 'email', 'role']
+                    attributes: ['id', 'username', 'email', 'role', 'createdAt']
                 })
             } catch (err) {
                 currentUser = null
