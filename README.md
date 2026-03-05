@@ -520,9 +520,12 @@ ISC License - Feel free to use for personal or commercial projects.
 
 ---
 
-## 👤 Author
+## 👤 Author & Team dev
 
-**Max Natchanon**
+**Max Natchanon** (Techlead & Dev & Project Manager)
+**First Poorinut** (Blackend Dev & Supporter Frontend)
+**Bright Kongpop** (Frontend Dev & UI/UX)
+**Bam Napat** (Report & Support other works)
 
 ---
 
