@@ -1,0 +1,240 @@
+<div id="admin-users-loading" class="min-h-[60vh] flex items-center justify-center">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 animate-pulse">Loading users list...</p>
+  </div>
+</div>
+
+<div id="admin-users-content" class="space-y-6 hidden">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+      <i data-lucide="user-cog" class="h-6 w-6 text-blue-400"></i> Roles Management
+    </h1>
+    <div class="flex items-center gap-2 bg-white/5 border border-white/[0.08] rounded-xl px-3 py-2 w-full md:w-64">
+      <i data-lucide="search" class="h-4 w-4 text-gray-500"></i>
+      <input id="role-search" placeholder="Search users..." oninput="filterUsers()"
+             class="bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none w-full" style="background:transparent !important" />
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-4">
+    <div class="bg-white/5 border border-white/[0.08] rounded-xl p-4 text-center">
+      <p id="total-user-count" class="text-2xl font-black text-white">0</p>
+      <p class="text-xs text-gray-500 mt-1">Total Users</p>
+    </div>
+    <div class="bg-white/5 border border-white/[0.08] rounded-xl p-4 text-center">
+      <p id="admin-count" class="text-2xl font-black text-yellow-400">0</p>
+      <p class="text-xs text-gray-500 mt-1">Admins</p>
+    </div>
+    <div class="bg-white/5 border border-white/[0.08] rounded-xl p-4 text-center">
+      <p id="member-count" class="text-2xl font-black text-blue-400">0</p>
+      <p class="text-xs text-gray-500 mt-1">Members</p>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="rounded-xl border border-white/[0.08] bg-white/5 overflow-hidden">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-white/[0.08]">
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-3">User</th>
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-3">Email</th>
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-3">Joined</th>
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-3">Role</th>
+          <th class="text-right text-gray-400 text-xs uppercase px-5 py-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="users-table-body" class="divide-y divide-white/5">
+        <!-- Users injected here -->
+      </tbody>
+    </table>
+    <!-- Pagination Container -->
+    <div id="users-pagination" class="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-white/[0.08] bg-black/20 gap-4 hidden">
+      <span id="users-page-info" class="text-xs text-gray-400 font-medium"></span>
+      <div id="users-page-buttons" class="flex gap-1.5 overflow-x-auto pb-1 max-w-full"></div>
+    </div>
+  </div>
+</div>
+
+<div id="user-delete-modal" class="fixed inset-0 z-50 hidden">
+  <div class="fixed inset-0 bg-black/60" onclick="closeUserModal()"></div>
+  <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="bg-modal border border-red-900/40 rounded-2xl p-6 max-w-sm w-full relative space-y-4">
+      <h3 class="text-red-400 font-bold text-lg">Delete User</h3>
+      <p class="text-gray-300 text-sm">Are you sure you want to delete "<span id="del-user-name"></span>"? This action cannot be undone.</p>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeUserModal()" class="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors">Cancel</button>
+        <button id="del-user-btn" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm transition-colors">Delete User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allUsers = [];
+let usersPerPage = 10;
+let usersCurrentPage = 1;
+const currentUserId = '<%= currentUser ? currentUser.id : "" %>';
+
+function renderUsers(users) {
+  const tbody = document.getElementById('users-table-body');
+  const totalPages = Math.max(1, Math.ceil(users.length / usersPerPage));
+  if (usersCurrentPage > totalPages) usersCurrentPage = totalPages;
+  
+  const start = (usersCurrentPage - 1) * usersPerPage;
+  const end = start + usersPerPage;
+  const paginated = users.slice(start, end);
+
+  if (users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-gray-500">No users found</td></tr>';
+    document.getElementById('users-pagination').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('users-pagination').classList.remove('hidden');
+
+  tbody.innerHTML = paginated.map(user => {
+    const isSelf = currentUserId == user.id;
+    return `
+      <tr class="border-b border-white/5 hover:bg-white/[0.03] user-row"
+          data-search="${(user.username + ' ' + user.email).toLowerCase()}">
+        <td class="px-5 py-3">
+          <div class="flex items-center gap-3">
+            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=1d4ed8&color=fff"
+                 alt="${user.username}" class="w-8 h-8 rounded-full bg-gray-800 border border-white/10" />
+            <div>
+              <p class="text-white text-sm font-medium">${user.username}</p>
+              ${isSelf ? '<span class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full font-bold">You</span>' : ''}
+            </div>
+          </div>
+        </td>
+        <td class="text-gray-300 text-sm px-5 py-3">${user.email}</td>
+        <td class="text-gray-400 text-sm px-5 py-3">${new Date(user.createdAt).toLocaleDateString()}</td>
+        <td class="px-5 py-3">
+          <select onchange="changeRole('${user.id}', this.value)" ${isSelf ? 'disabled' : ''}
+                  class="bg-white/5 border border-white/[0.08] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500 appearance-none disabled:opacity-50">
+            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+            <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+          </select>
+        </td>
+        <td class="text-right px-5 py-3">
+          <button onclick="deleteUserConfirm('${user.id}', '${user.username}')" ${isSelf ? 'disabled' : ''}
+                  class="p-1.5 rounded-lg text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
+  renderPagination(users.length);
+  lucide.createIcons();
+}
+
+function renderPagination(totalUsers) {
+  const info = document.getElementById('users-page-info');
+  const btnContainer = document.getElementById('users-page-buttons');
+  const totalPages = Math.max(1, Math.ceil(totalUsers / usersPerPage));
+
+  info.textContent = `Page ${usersCurrentPage} of ${totalPages} (${totalUsers} total)`;
+
+  let html = '';
+  html += `<button onclick="goUsersPage(${Math.max(1, usersCurrentPage - 1)})" class="px-2.5 py-1 rounded-lg text-xs ${usersCurrentPage <= 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${usersCurrentPage <= 1 ? 'disabled' : ''}>Prev</button>`;
+
+  const startP = Math.max(1, usersCurrentPage - 2);
+  const endP = Math.min(totalPages, startP + 4);
+  
+  for (let p = startP; p <= endP; p++) {
+    if (p === usersCurrentPage) {
+      html += `<button class="px-2.5 py-1 rounded-lg text-xs bg-blue-600 text-white font-bold">${p}</button>`;
+    } else {
+      html += `<button onclick="goUsersPage(${p})" class="px-2.5 py-1 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/10">${p}</button>`;
+    }
+  }
+
+  html += `<button onclick="goUsersPage(${Math.min(totalPages, usersCurrentPage + 1)})" class="px-2.5 py-1 rounded-lg text-xs ${usersCurrentPage >= totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${usersCurrentPage >= totalPages ? 'disabled' : ''}>Next</button>`;
+  btnContainer.innerHTML = html;
+}
+
+function goUsersPage(p) {
+  usersCurrentPage = p;
+  filterUsers();
+}
+
+function updateStats(users) {
+  const total = users.length;
+  const admins = users.filter(u => u.role === 'admin').length;
+  const members = total - admins;
+
+  document.getElementById('total-user-count').textContent = total;
+  document.getElementById('admin-count').textContent = admins;
+  document.getElementById('member-count').textContent = members;
+}
+
+function filterUsers() {
+  const q = document.getElementById('role-search').value.toLowerCase();
+  const filtered = allUsers.filter(u => 
+    u.username.toLowerCase().includes(q) || 
+    u.email.toLowerCase().includes(q)
+  );
+  renderUsers(filtered);
+}
+
+async function changeRole(id, role) {
+  try {
+    await axios.put('/api/users/' + id , { role: role });
+    Toast.success('Role updated!');
+    
+    // Update local state and stats
+    const user = allUsers.find(u => u.id == id);
+    if (user) {
+      user.role = role;
+      updateStats(allUsers);
+    }
+  } catch (err) { 
+    Toast.error('Failed to update role'); 
+    console.error(err);
+  }
+}
+
+function deleteUserConfirm(id, name) {
+  document.getElementById('del-user-name').textContent = name;
+  document.getElementById('user-delete-modal').classList.remove('hidden');
+  document.getElementById('del-user-btn').onclick = async function() {
+    try {
+      await axios.delete('/api/users/' + id);
+      Toast.success('User deleted!');
+      closeUserModal();
+      
+      // Update local state
+      allUsers = allUsers.filter(u => u.id != id);
+      renderUsers(allUsers);
+      updateStats(allUsers);
+    } catch { Toast.error('Failed to delete'); }
+  };
+}
+
+function closeUserModal() { document.getElementById('user-delete-modal').classList.add('hidden'); }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await axios.get('/api/users?limit=1000');
+    allUsers = res.data.data ? res.data.data : (res.data || []);
+
+    document.getElementById('admin-users-loading').classList.add('hidden');
+    document.getElementById('admin-users-content').classList.remove('hidden');
+
+    updateStats(allUsers);
+    renderUsers(allUsers);
+  } catch (err) {
+    console.error('Failed to load users:', err);
+    document.getElementById('admin-users-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <p>Failed to load users list. Please try again.</p>
+      </div>
+    `;
+  }
+});
+</script>

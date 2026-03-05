@@ -1,9 +1,25 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+const pageController = require('../controllers/pageController');
+const { requireAuth, requireAdmin } = require('../middleware/authMiddleware');
 
-router.get('/', (req, res) => res.render('index'))
-router.get('/login', (req, res) => res.render('login'))
-// router.get('/register', (req, res) => res.render('register'))
-// router.get('/dashboard', (req, res) => res.render('dashboard'))
+// Public pages
+router.get('/', pageController.getHome);
+router.get('/login', pageController.getLogin);
+router.get('/game/:id', pageController.getGameDetails);
+router.get('/about', pageController.getAbout);
 
-module.exports = router
+// Protected pages (require login)
+router.get('/cart', requireAuth, pageController.getCart);
+router.get('/checkout', requireAuth, pageController.getCheckout);
+router.get('/profile', requireAuth, pageController.getProfile);
+
+// Admin pages
+router.get('/admin', requireAdmin, pageController.getAdminDashboard);
+router.get('/admin/users', requireAdmin, pageController.getAdminUsers);
+router.get('/admin/categories', requireAdmin, pageController.getAdminCategories);
+router.get('/admin/games', requireAdmin, pageController.getAdminGames);
+router.get('/admin/orders', requireAdmin, pageController.getAdminOrders);
+router.get('/admin/reports', requireAdmin, pageController.getAdminReports);
+
+module.exports = router;

@@ -1,0 +1,392 @@
+<div id="admin-reports-loading" class="min-h-[60vh] flex items-center justify-center print:hidden">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 animate-pulse">Loading reports data...</p>
+  </div>
+</div>
+
+<div id="admin-reports-content" class="space-y-6 hidden report-container">
+  
+  <style>
+  @media print {
+    html, body {
+      height: auto !important;
+      overflow: visible !important;
+      background: white !important;
+      color: black !important;
+    }
+    
+    #admin-shell, 
+    .admin-shell, 
+    #admin-shell > div,
+    .print-main-view, 
+    .admin-content,
+    .report-container {
+      display: block !important;
+      height: auto !important;
+      overflow: visible !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Hide all sidebar and navigation elements */
+    #admin-sidebar,
+    #admin-sidebar *,
+    #admin-mobile-overlay,
+    #admin-mobile-overlay *,
+    #admin-mobile-overlay aside,
+    .admin-topbar,
+    .admin-topbar *,
+    aside[class*="sidebar"],
+    .print\:hidden,
+    .hide-on-print { 
+      display: none !important; 
+    }
+    
+    .report-container,
+    .report-container * {
+      color: #000 !important;
+      text-shadow: none !important;
+    }
+
+    .report-container .bg-white\/5,
+    .report-container .bg-white\/\[0\.02\],
+    .report-container .bg-white\/\[0\.03\],
+    .report-container .bg-blue-900\/20 {
+      background: #fff !important;
+    }
+
+    .report-container .border-white\/\[0\.08\],
+    .report-container .border-blue-500\/20 {
+      border-color: #000 !important;
+    }
+
+    .report-container a {
+      text-decoration: none !important;
+    }
+    
+    .page-break {
+      page-break-after: always !important;
+      break-after: page !important;
+      break-inside: avoid !important;
+    }
+  }
+  </style>
+
+  <!-- Screen Header -->
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 print:hidden hide-on-print">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+      <i data-lucide="file-text" class="h-6 w-6 text-blue-400"></i> Transaction Report
+    </h1>
+    <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm text-white font-medium transition-colors">
+      <i data-lucide="printer" class="h-4 w-4"></i> Print / Export
+    </button>
+  </div>
+
+  <!-- Date Filter -->
+  <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-4 flex flex-wrap gap-3 items-end print:hidden hide-on-print">
+    <div>
+      <label class="text-xs text-gray-500 block mb-1">Start Date</label>
+      <input type="date" id="rpt-start" onchange="filterReport()"
+             class="bg-white/5 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500 w-40" style="color-scheme: dark" />
+    </div>
+    <div>
+      <label class="text-xs text-gray-500 block mb-1">End Date</label>
+      <input type="date" id="rpt-end" onchange="filterReport()"
+             class="bg-white/5 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500 w-40" style="color-scheme: dark" />
+    </div>
+    <button onclick="document.getElementById('rpt-start').value='';document.getElementById('rpt-end').value='';filterReport()"
+            class="text-gray-400 hover:text-white text-sm px-3 py-1.5 transition-colors">Clear</button>
+  </div>
+
+  <!-- ═══ SCREEN REPORT ═══ -->
+  <div class="print:hidden hide-on-print">
+    <!-- Report Header -->
+    <div class="bg-white/5 border border-white/[0.08] rounded-2xl px-6 py-5 mb-6 shadow-xl">
+      <h2 class="text-lg font-bold text-white">Quest Store — Transaction Report</h2>
+      <p class="text-sm text-gray-400 mt-1">Generated on <span id="report-date-display"></span></p>
+      <div class="mt-4 flex items-center gap-4 text-sm bg-black/20 p-3 rounded-xl border border-white/5 w-fit">
+        <div class="flex flex-col">
+          <span class="text-gray-400 text-xs">Total Records</span>
+          <span class="text-white font-bold text-lg" id="rpt-record-count">0</span>
+        </div>
+        <div class="w-px h-8 bg-white/10"></div>
+        <div class="flex flex-col">
+          <span class="text-gray-400 text-xs">Total Revenue</span>
+          <span class="text-blue-400 font-bold text-lg" id="rpt-grand-total">฿0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Table -->
+    <div class="rounded-xl border border-white/[0.08] bg-white/5 overflow-hidden shadow-2xl">
+      <div class="overflow-x-auto">
+        <table class="w-full" id="report-table">
+          <thead>
+            <tr class="border-b border-white/[0.08] bg-white/[0.02]">
+              <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">#</th>
+              <th class="text-left text-gray-400 text-xs uppercase px-5 py-4 w-32">Date</th>
+              <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Order ID</th>
+              <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Customer</th>
+              <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Game</th>
+              <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Secret Key</th>
+              <th class="text-center text-gray-400 text-xs uppercase px-5 py-4">Qty</th>
+              <th class="text-right text-gray-400 text-xs uppercase px-5 py-4">Price/Item</th>
+              <th class="text-right text-gray-400 text-xs uppercase px-5 py-4">Total Cost</th>
+            </tr>
+          </thead>
+          <tbody id="report-tbody" class="divide-y divide-white/5">
+            <!-- Rows rendered by JS -->
+          </tbody>
+          <tfoot>
+            <tr class="bg-blue-900/20 border-t border-blue-500/20">
+              <td colspan="8" class="px-5 py-4 text-right text-white font-bold text-sm">GRAND TOTAL</td>
+              <td class="text-right text-blue-400 font-black px-5 py-4 text-lg" id="tfoot-total">฿0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-white/[0.08] gap-4" id="pagination-controls">
+        <span class="text-xs text-gray-500" id="page-info"></span>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 max-w-full" id="page-buttons"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRINT LAYOUT ═══ -->
+  <div id="print-container" class="hidden print:block text-black">
+  </div>
+</div>
+
+<script>
+let allRows = [];
+let filteredRows = [];
+let rowsPerPage = 10;
+let currentPage = 1;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('report-date-display').textContent = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  try {
+    const res = await axios.get('/api/orders?limit=2000');
+    const orders = res.data.data ? res.data.data : (res.data || []);
+    
+    // Build flat transaction rows
+    orders.forEach(order => {
+      // Only show completed or all orders? Report usually shows completed transactions.
+      if (order.status !== 'completed') return;
+
+      const userName = order.user ? order.user.username : 'Unknown';
+      const userEmail = order.user ? order.user.email : '—';
+      
+      if (order.orderDetails && order.orderDetails.length > 0) {
+        order.orderDetails.forEach(item => {
+          // Check if there are keys attached
+          const keys = item.gameKeys && item.gameKeys.length > 0 ? item.gameKeys.map(k => k.secret_key) : ['N/A'];
+          
+          keys.forEach(k => {
+            const price = Number(item.subtotal) || 0;
+            allRows.push({
+              orderId: order.id,
+              date: order.createdAt,
+              customerEmail: userEmail,
+              gameTitle: item.game ? item.game.title : 'Deleted Game',
+              key: k,
+              quantity: 1,
+              pricePerItem: price,
+              totalCost: price
+            });
+          });
+        });
+      }
+    });
+
+    // Sort by date descending
+    allRows.sort((a, b) => new Date(b.date) - new Date(a.date));
+    filteredRows = [...allRows];
+
+    document.getElementById('admin-reports-loading').classList.add('hidden');
+    document.getElementById('admin-reports-content').classList.remove('hidden');
+
+    renderPage();
+    lucide.createIcons();
+
+  } catch (err) {
+    console.error('Failed to load report data:', err);
+    document.getElementById('admin-reports-loading').innerHTML = `
+      <div class="text-center text-red-500">
+         <p>Failed to load data. Please try again later.</p>
+      </div>
+    `;
+  }
+});
+
+function renderPage() {
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / rowsPerPage));
+  if (currentPage > totalPages) currentPage = totalPages;
+  
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = Math.min(start + rowsPerPage, filteredRows.length);
+  const pageRows = filteredRows.slice(start, end);
+
+  const tbody = document.getElementById('report-tbody');
+  
+  if (pageRows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500 py-12 text-sm">No transactions found for the selected period</td></tr>';
+  } else {
+    tbody.innerHTML = pageRows.map((row, i) => {
+      const rowNum = start + i + 1;
+      return `
+        <tr class="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
+          <td class="text-gray-500 text-xs px-5 py-4">${rowNum}</td>
+          <td class="text-gray-400 text-xs px-5 py-4 whitespace-nowrap">${new Date(row.date).toLocaleDateString('en-GB')}</td>
+          <td class="font-mono text-xs text-gray-400 px-5 py-4">#${row.orderId}</td>
+          <td class="px-5 py-4">
+            <p class="text-white text-sm font-medium">${row.customerEmail}</p>
+          </td>
+          <td class="text-white text-sm font-bold px-5 py-4">${row.gameTitle}</td>
+          <td class="font-mono text-[10px] text-blue-300 px-5 py-4 bg-blue-500/5 rounded">${row.key}</td>
+          <td class="text-center text-gray-300 text-sm px-5 py-4">${row.quantity}</td>
+          <td class="text-right text-gray-300 text-sm px-5 py-4">฿${row.pricePerItem.toLocaleString()}</td>
+          <td class="text-right text-blue-400 font-bold text-sm px-5 py-4">฿${row.totalCost.toLocaleString()}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Update totals
+  const filteredTotal = filteredRows.reduce((s, r) => s + r.totalCost, 0);
+  document.getElementById('tfoot-total').textContent = `฿${filteredTotal.toLocaleString()}`;
+  document.getElementById('rpt-grand-total').textContent = `฿${filteredTotal.toLocaleString()}`;
+  document.getElementById('rpt-record-count').textContent = filteredRows.length;
+  
+  renderPrintRows();
+
+  // Pagination info
+  document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages} (${filteredRows.length} records)`;
+
+  // Page buttons
+  const btnContainer = document.getElementById('page-buttons');
+  let btnHtml = '';
+  btnHtml += `<button onclick="window.rptPage(${Math.max(1, currentPage - 1)})" class="px-2.5 py-1 rounded-lg text-xs ${currentPage <= 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${currentPage <= 1 ? 'disabled' : ''}>Prev</button>`;
+
+  let startP = Math.max(1, currentPage - 2);
+  let endP = Math.min(totalPages, startP + 4);
+  if (endP - startP < 4) startP = Math.max(1, endP - 4);
+
+  for (let p = startP; p <= endP; p++) {
+    if (p === currentPage) {
+      btnHtml += `<button class="px-2.5 py-1 rounded-lg text-xs bg-blue-600 text-white font-bold">${p}</button>`;
+    } else {
+      btnHtml += `<button onclick="window.rptPage(${p})" class="px-2.5 py-1 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/10">${p}</button>`;
+    }
+  }
+
+  btnHtml += `<button onclick="window.rptPage(${Math.min(totalPages, currentPage + 1)})" class="px-2.5 py-1 rounded-lg text-xs ${currentPage >= totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>`;
+  btnContainer.innerHTML = btnHtml;
+}
+
+window.rptPage = function(p) {
+  currentPage = p;
+  renderPage();
+};
+
+window.filterReport = function() {
+  const start = document.getElementById('rpt-start').value;
+  const end = document.getElementById('rpt-end').value;
+  
+  filteredRows = allRows.filter(r => {
+    const d = new Date(r.date);
+    if (start && d < new Date(start)) return false;
+    if (end && d > new Date(end + 'T23:59:59')) return false;
+    return true;
+  });
+  
+  currentPage = 1;
+  renderPage();
+};
+
+function renderPrintRows() {
+  const container = document.getElementById('print-container');
+  if (!container) return;
+
+  if (filteredRows.length === 0) {
+    container.innerHTML = '<div class="text-center py-8 text-gray-500">No data available for print</div>';
+    return;
+  }
+
+  const ROWS_PER_PAGE = 10;
+  const totalPages = Math.ceil(filteredRows.length / ROWS_PER_PAGE);
+  const filteredTotal = filteredRows.reduce((sum, row) => sum + row.totalCost, 0);
+  const generateDate = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  let html = '';
+
+  for (let page = 0; page < totalPages; page++) {
+    const pageStart = page * ROWS_PER_PAGE;
+    const pageRecords = filteredRows.slice(pageStart, pageStart + ROWS_PER_PAGE);
+    const isLastPage = (page === totalPages - 1);
+
+    html += `
+    <div class="${!isLastPage ? 'page-break' : ''}">
+      <div class="text-center mb-6 border-b-2 border-black pb-4">
+        <h2 class="text-3xl font-black">QUEST STORE</h2>
+        <p class="text-lg font-bold mt-1">Transaction Report <span class="text-sm font-normal text-gray-600">(Page ${page + 1}/${totalPages})</span></p>
+        <p class="text-gray-600 text-sm mt-1">Generated: ${generateDate}</p>
+      </div>
+
+      <div class="mb-6 text-sm flex gap-10">
+        <p><strong>Total Records:</strong> ${filteredRows.length}</p>
+        <p><strong>Total Revenue:</strong> ฿${filteredTotal.toLocaleString()}</p>
+      </div>
+
+      <table class="w-full border-collapse text-xs mb-8">
+        <thead>
+          <tr class="border-b-2 border-black">
+            <th class="text-left py-2 px-1 w-8">#</th>
+            <th class="text-left py-2 px-1 w-20">Date</th>
+            <th class="text-left py-2 px-1 w-16">Order ID</th>
+            <th class="text-left py-2 px-1">Customer</th>
+            <th class="text-left py-2 px-1">Game</th>
+            <th class="text-left py-2 px-1">Secret Key</th>
+            <th class="text-center py-2 px-1 w-10">Qty</th>
+            <th class="text-right py-2 px-1 w-20">Price/Item</th>
+            <th class="text-right py-2 px-1 w-20">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pageRecords.map((row, idx) => `
+            <tr class="border-b border-gray-300 ${idx % 2 === 0 ? '' : 'bg-gray-50'}">
+              <td class="py-1.5 px-1">${pageStart + idx + 1}</td>
+              <td class="py-1.5 px-1 whitespace-nowrap">${new Date(row.date).toLocaleDateString('en-GB')}</td>
+              <td class="py-1.5 px-1 font-mono">#${row.orderId}</td>
+              <td class="py-1.5 px-1">${row.customerEmail}</td>
+              <td class="py-1.5 px-1">${row.gameTitle}</td>
+              <td class="py-1.5 px-1 font-mono">${row.key}</td>
+              <td class="text-center py-1.5 px-1">${row.quantity}</td>
+              <td class="text-right py-1.5 px-1">฿${row.pricePerItem.toLocaleString()}</td>
+              <td class="text-right py-1.5 px-1">฿${row.totalCost.toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+        ${isLastPage ? `
+        <tfoot>
+          <tr class="border-t-2 border-black font-bold text-sm">
+            <td colspan="8" class="text-right py-3 px-1">GRAND TOTAL</td>
+            <td class="text-right py-3 px-1">฿${filteredTotal.toLocaleString()}</td>
+          </tr>
+        </tfoot>` : ''}
+      </table>
+      
+      <div class="mt-auto pt-4 border-t border-gray-300 text-center text-xs text-gray-500">
+        This report was generated securely by the Quest Store Admin System.
+      </div>
+    </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+</script>

@@ -1,0 +1,213 @@
+<!-- Checkout Top Bar -->
+<header class="sticky top-0 z-50 border-b backdrop-blur-md bg-[#0a0f1e]/95 border-blue-900/30">
+  <div class="container mx-auto px-4 h-14 flex items-center justify-between max-w-4xl">
+    <a href="/cart" class="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Cart
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <i data-lucide="gamepad-2" class="w-3.5 h-3.5 text-white"></i>
+      </div>
+      <span class="text-sm font-black tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">QUEST STORE</span>
+    </div>
+    <button onclick="toggleTheme()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" title="Toggle theme">
+      <i data-lucide="sun" class="h-4 w-4 hidden dark:block"></i>
+      <i data-lucide="moon" class="h-4 w-4 block dark:hidden"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Steps -->
+<div class="container mx-auto px-4 max-w-4xl pt-6 pb-2">
+  <div class="flex items-center justify-center gap-3 text-sm">
+    <a href="/cart" class="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors">
+      <span class="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-xs font-bold">1</span>
+      Cart
+    </a>
+    <div class="w-8 h-px bg-white/20"></div>
+    <span class="flex items-center gap-1.5 text-blue-400 font-semibold">
+      <span class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold" style="color:white">2</span>
+      Payment
+    </span>
+  </div>
+</div>
+
+<div id="checkout-loading" class="container mx-auto py-24 px-4 text-center">
+  <i data-lucide="loader-2" class="h-10 w-10 text-blue-500 animate-spin mx-auto mb-4"></i>
+  <p class="text-gray-400">Loading checkout details...</p>
+</div>
+
+<div id="checkout-empty" class="container mx-auto py-24 px-4 text-center space-y-5 hidden">
+  <i data-lucide="shopping-cart" class="mx-auto h-16 w-16 text-gray-600"></i>
+  <h1 class="text-2xl font-bold text-white">Your cart is empty</h1>
+  <a href="/" class="inline-block mt-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors">Browse Games</a>
+</div>
+
+<div id="checkout-main" class="container mx-auto px-4 py-10 max-w-4xl hidden">
+  <h1 class="text-2xl font-bold text-white mb-8">Checkout</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+    <!-- Form -->
+    <div class="lg:col-span-3">
+      <form id="checkout-form" class="space-y-5">
+        <!-- Payment Method -->
+        <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-4">
+          <h2 class="text-base font-bold text-white">Payment Method</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" onclick="selectPayment('card')" id="pm-card"
+                    class="flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-400">
+              <i data-lucide="credit-card" class="h-5 w-5 shrink-0"></i>
+              <span class="text-sm font-semibold">Credit Card</span>
+            </button>
+            <button type="button" onclick="selectPayment('wallet')" id="pm-wallet"
+                    class="flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left border-white/[0.08] bg-white/[0.03] text-gray-400 hover:border-white/20">
+              <i data-lucide="wallet" class="h-5 w-5 shrink-0"></i>
+              <span class="text-sm font-semibold">Wallet</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card Details -->
+        <div id="card-details" class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-4">
+          <h2 class="text-base font-bold text-white">Card Details</h2>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-gray-400 mb-1.5 block">Card Number</label>
+              <input placeholder="0000 0000 0000 0000" id="card-num"
+                     class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono tracking-wider" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">Expiry Date</label>
+                <input placeholder="MM / YY"
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">CVC</label>
+                <input placeholder="123"
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-gray-400 mb-1.5 block">Cardholder Name</label>
+              <input placeholder="Full name on card"
+                     class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet panel -->
+        <div id="wallet-details" class="hidden bg-white/5 border border-white/[0.08] rounded-2xl p-6 text-center space-y-2">
+          <i data-lucide="wallet" class="h-10 w-10 text-blue-400 mx-auto"></i>
+          <p class="text-white font-semibold">Pay with Wallet</p>
+          <p class="text-gray-400 text-sm">Balance: ฿50,000.00 (Mock)</p>
+        </div>
+
+        <button type="submit" id="pay-btn"
+                class="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-green-600 hover:bg-green-500 font-bold text-base transition-all shadow-lg shadow-green-600/20 hover:shadow-green-500/30 disabled:opacity-60 disabled:cursor-not-allowed" style="color:white !important">
+          <i data-lucide="lock" class="h-4 w-4"></i>
+          <span id="pay-btn-text">Pay ฿0</span>
+          <i data-lucide="chevron-right" class="h-4 w-4"></i>
+        </button>
+        <p class="text-center text-xs text-gray-600">🔒 256-bit SSL encrypted · Your data is secure</p>
+      </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="lg:col-span-2">
+      <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-4 sticky top-20">
+        <h2 class="text-base font-bold text-white">Order Summary</h2>
+        <div id="checkout-items" class="space-y-3">
+          <!-- Injected via Axios -->
+        </div>
+        <div class="h-px bg-white/[0.08]"></div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between text-gray-400"><span>Subtotal</span><span id="checkout-subtotal" class="text-white">฿0</span></div>
+          <div class="flex justify-between text-gray-400"><span>Tax (7%)</span><span id="checkout-tax" class="text-white">฿0</span></div>
+          <div class="h-px bg-white/[0.08]"></div>
+          <div class="flex justify-between font-bold text-base">
+            <span class="text-white">Total</span>
+            <span id="checkout-total" class="text-green-400 text-xl">฿0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectPayment(method) {
+  const card = document.getElementById('card-details');
+  const wallet = document.getElementById('wallet-details');
+  const pmCard = document.getElementById('pm-card');
+  const pmWallet = document.getElementById('pm-wallet');
+  const activeClass = 'flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-400';
+  const inactiveClass = 'flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left border-white/[0.08] bg-white/[0.03] text-gray-400 hover:border-white/20';
+  if (method === 'card') {
+    card.classList.remove('hidden'); wallet.classList.add('hidden');
+    pmCard.className = activeClass;
+    pmWallet.className = inactiveClass;
+  } else {
+    card.classList.add('hidden'); wallet.classList.remove('hidden');
+    pmWallet.className = activeClass;
+    pmCard.className = inactiveClass;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await axios.get('/api/cart');
+    const items = res.data;
+
+    document.getElementById('checkout-loading').classList.add('hidden');
+
+    if (!items || items.length === 0) {
+      document.getElementById('checkout-empty').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('checkout-main').classList.remove('hidden');
+
+    let subtotal = 0;
+    const itemsContainer = document.getElementById('checkout-items');
+    
+    itemsContainer.innerHTML = items.map(item => {
+      const g = item.game;
+      if (!g) return '';
+      const p = g.discount ? Math.round(g.price * (1 - g.discount / 100)) : g.price;
+      const lineTotal = p * item.quantity;
+      subtotal += lineTotal;
+      
+      return `
+        <div class="flex items-center gap-3">
+          <img src="${g.image_url || '/images/arcraider.jpg'}" alt="" class="w-10 h-10 rounded-lg object-cover bg-gray-800 shrink-0" />
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-white font-medium line-clamp-1">${g.title}</p>
+            <p class="text-xs text-gray-500">Qty: ${item.quantity}</p>
+          </div>
+          <p class="text-sm font-bold text-white shrink-0">฿${lineTotal.toLocaleString()}</p>
+        </div>
+      `;
+    }).join('');
+
+    const tax = Math.round(subtotal * 0.07);
+    const total = subtotal + tax;
+
+    document.getElementById('checkout-subtotal').textContent = `฿${subtotal.toLocaleString()}`;
+    document.getElementById('checkout-tax').textContent = `฿${tax.toLocaleString()}`;
+    document.getElementById('checkout-total').textContent = `฿${total.toLocaleString()}`;
+    document.getElementById('pay-btn-text').textContent = `Pay ฿${total.toLocaleString()}`;
+
+    lucide.createIcons();
+    
+    document.getElementById('checkout-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      handleCheckout();
+    });
+
+  } catch (err) {
+    console.error('Checkout page error:', err);
+    location.href = '/cart';
+  }
+});
+</script>

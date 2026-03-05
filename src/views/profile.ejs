@@ -1,0 +1,383 @@
+<% if (!currentUser) { %>
+  <div class="container mx-auto py-24 px-4 text-center space-y-4">
+    <i data-lucide="key" class="mx-auto h-16 w-16 text-gray-700"></i>
+    <h1 class="text-2xl font-bold text-white">You're not logged in</h1>
+    <p class="text-gray-400">Please log in to view your profile and purchased keys.</p>
+    <a href="/login" class="inline-block mt-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors">Login</a>
+  </div>
+<% } else { %>
+
+<div id="profile-loading" class="min-h-[60vh] flex items-center justify-center">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 animate-pulse">Loading profile data...</p>
+  </div>
+</div>
+
+<div id="profile-content" class="container mx-auto px-4 py-10 max-w-4xl space-y-8 hidden">
+
+  <!-- ── Profile Header ── -->
+  <div class="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-blue-900/20 to-purple-900/10 p-8">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.1),transparent)] text-white"></div>
+    <div class="relative flex items-center gap-6">
+      <div class="relative">
+        <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(currentUser.username) %>&background=1d4ed8&color=fff"
+             alt="<%= currentUser.username %>"
+             class="w-20 h-20 rounded-full border-2 border-blue-500/50 shadow-lg shadow-blue-900/30 bg-gray-800"
+             onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(currentUser.username) %>&background=1d4ed8&color=fff'" />
+        <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-[#0a0f1e] rounded-full"></span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-black text-white"><%= currentUser.username %></h1>
+        <p class="text-gray-400 text-sm"><%= currentUser.email %></p>
+        <div class="flex flex-wrap gap-2 mt-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border
+            <%= currentUser.role === 'admin'
+              ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
+              : 'bg-blue-500/10 text-blue-400 border-blue-500/30' %>">
+            <i data-lucide="shield" class="h-3 w-3"></i>
+            <%= currentUser.role === 'admin' ? 'Administrator' : 'Member' %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tabs ── -->
+  <div class="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/[0.08]">
+    <button onclick="switchTab('profile')" id="tab-profile"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+      <i data-lucide="user" class="h-4 w-4 shrink-0"></i>
+      <span class="hidden sm:inline">Profile Info</span>
+    </button>
+    <button onclick="switchTab('keys')" id="tab-keys"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center text-gray-400 hover:text-white hover:bg-white/5">
+      <i data-lucide="key" class="h-4 w-4 shrink-0"></i>
+      <span class="hidden sm:inline">Purchased Keys (<span id="key-count">0</span>)</span>
+    </button>
+    <button onclick="switchTab('history')" id="tab-history"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center text-gray-400 hover:text-white hover:bg-white/5">
+      <i data-lucide="history" class="h-4 w-4 shrink-0"></i>
+      <span class="hidden sm:inline">History (<span id="order-count">0</span>)</span>
+    </button>
+    <button onclick="switchTab('favorites')" id="tab-favorites"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 justify-center text-gray-400 hover:text-white hover:bg-white/5">
+      <i data-lucide="heart" class="h-4 w-4 shrink-0"></i>
+      <span class="hidden sm:inline">Favorites (<span id="fav-count">0</span>)</span>
+    </button>
+  </div>
+
+  <!-- ═══ Tab: Profile Info ═══ -->
+  <div id="panel-profile" class="space-y-4">
+    <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6 space-y-4">
+      <h2 class="text-lg font-bold text-white">Account Information</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Username</p>
+          <p class="text-white font-medium"><%= currentUser.username %></p>
+        </div>
+        <div class="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Email Address</p>
+          <p class="text-white font-medium"><%= currentUser.email %></p>
+        </div>
+        <div class="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Account Role</p>
+          <p class="text-white font-medium text-capitalize"><%= currentUser.role %></p>
+        </div>
+        <div class="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Member Since</p>
+          <p class="text-white font-medium"><%= new Date(currentUser.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab: Purchased Keys ═══ -->
+  <div id="panel-keys" class="hidden space-y-4">
+    <div class="bg-white/5 border border-white/[0.08] rounded-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-white/[0.08]">
+        <h2 class="text-lg font-bold text-white">Your Game Keys</h2>
+        <p class="text-sm text-gray-400 mt-0.5">Click "Reveal" to see your activation key</p>
+      </div>
+      <div id="keys-container" class="divide-y divide-white/5">
+        <!-- Keys injected here -->
+      </div>
+      <div id="no-keys" class="text-center py-16 text-gray-500 hidden">
+        <i data-lucide="key" class="mx-auto h-12 w-12 text-gray-700 mb-3"></i>
+        <p>No keys yet. Purchase a game to see your keys here.</p>
+        <a href="/" class="inline-block mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold">Browse Games</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab: Purchase History ═══ -->
+  <div id="panel-history" class="hidden space-y-4">
+    <div id="history-container" class="space-y-4">
+      <!-- Orders injected here -->
+    </div>
+    <div id="no-history" class="text-center py-16 text-gray-500 bg-white/5 border border-white/[0.08] rounded-2xl hidden">
+      <i data-lucide="history" class="mx-auto h-12 w-12 text-gray-700 mb-3"></i>
+      <p>No purchase history yet.</p>
+      <a href="/" class="inline-block mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold">Start Shopping</a>
+    </div>
+  </div>
+
+  <!-- ═══ Tab: Favorites ═══ -->
+  <div id="panel-favorites" class="hidden space-y-6">
+    <div id="favorites-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <!-- Favorites injected here -->
+    </div>
+    <div id="no-favorites" class="text-center py-16 text-gray-500 bg-white/5 border border-white/[0.08] rounded-2xl hidden">
+      <i data-lucide="heart" class="mx-auto h-12 w-12 text-gray-700 mb-3"></i>
+      <p>Your wishlist is empty.</p>
+      <a href="/" class="inline-block mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold">Find Games</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleKey(idx) {
+  const el = document.getElementById('key-' + idx);
+  if (el) {
+    el.classList.toggle('blur-sm');
+    el.classList.toggle('select-none');
+  }
+}
+
+function copyKey(key, btn) {
+  navigator.clipboard.writeText(key);
+  Toast.success('Key copied to clipboard!');
+}
+
+function toggleHistKey(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.toggle('blur-sm');
+    el.classList.toggle('select-none');
+  }
+}
+
+async function loadFavorites() {
+  const grid = document.getElementById('favorites-grid');
+  const empty = document.getElementById('no-favorites');
+  const favCountEl = document.getElementById('fav-count');
+  if (!grid) return;
+
+  grid.innerHTML = '<div class="col-span-full py-12 flex justify-center"><i data-lucide="loader-2" class="h-8 w-8 text-blue-500 animate-spin"></i></div>';
+  lucide.createIcons({ nodes: [grid] });
+
+  try {
+    const res = await axios.get('/api/favorites');
+    const games = (res.data || []).filter(g => g !== null);
+    
+    if (favCountEl) favCountEl.textContent = games.length;
+
+    if (games.length === 0) {
+      grid.innerHTML = '';
+      if (empty) empty.classList.remove('hidden');
+      return;
+    }
+
+    if (empty) empty.classList.add('hidden');
+    grid.innerHTML = games.map(g => {
+        const dp = g.discount ? Math.round(g.price * (1 - g.discount / 100)) : g.price;
+        return `
+          <div class="group relative flex flex-col bg-white/5 border border-white/[0.08] rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all">
+            <a href="/game/${g.id}" class="relative aspect-video overflow-hidden">
+              <img src="${g.image_url || '/images/arcraider.jpg'}" alt="${g.title}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            </a>
+            <button onclick="toggleFavorite('${g.id}', this).then(() => loadFavorites())" class="absolute top-2 right-2 p-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-red-500 hover:bg-white/10 transition-all z-10">
+              <i data-lucide="heart" class="h-4 w-4 fill-red-500"></i>
+            </button>
+            <div class="p-3">
+              <p class="text-sm font-bold text-white line-clamp-1">${g.title}</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-sm font-bold text-blue-400">฿${dp.toLocaleString()}</span>
+                <button onclick="addToCart('${g.id}')" class="p-1 px-2 rounded-lg bg-blue-600/20 text-blue-400 text-[10px] font-bold hover:bg-blue-600 hover:text-white transition-all">
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    
+    lucide.createIcons({ nodes: [grid] });
+  } catch (err) {
+    console.error('Favorites load error:', err);
+    grid.innerHTML = '<p class="col-span-full text-center text-red-400 py-10">Failed to load favorites</p>';
+  }
+}
+
+function switchTab(id) {
+  const tabs = ['profile', 'keys', 'history', 'favorites'];
+  tabs.forEach(t => {
+    const panel = document.getElementById('panel-' + t);
+    const btn = document.getElementById('tab-' + t);
+    if (!panel || !btn) return;
+    
+    if (t === id) {
+      panel.classList.remove('hidden');
+      btn.classList.add('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-600/20');
+      btn.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
+      if (t === 'favorites') loadFavorites();
+    } else {
+      panel.classList.add('hidden');
+      btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-600/20');
+      btn.classList.add('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const tab = '<%= tab %>';
+
+  try {
+    const res = await axios.get('/api/orders/myorders');
+    const orders = res.data;
+
+    document.getElementById('profile-loading').classList.add('hidden');
+    document.getElementById('profile-content').classList.remove('hidden');
+
+    // Switch tab AFTER content is visible so loadFavorites can find DOM elements
+    if (tab !== 'profile') switchTab(tab);
+
+    const orderCount = orders.length;
+    document.getElementById('order-count').textContent = orderCount;
+
+    // Fetch favorites count independently so the badge shows immediately
+    axios.get('/api/favorites').then(favRes => {
+      const favCount = (favRes.data || []).filter(g => g !== null).length;
+      const favCountEl = document.getElementById('fav-count');
+      if (favCountEl) favCountEl.textContent = favCount;
+    }).catch(() => {});
+
+    const allKeys = [];
+    orders.forEach(order => {
+      if (order.orderDetails) {
+        order.orderDetails.forEach(detail => {
+          if (detail.gameKeys && detail.gameKeys.length > 0) {
+            detail.gameKeys.forEach(key => {
+              allKeys.push({
+                key: key.secret_key,
+                gameTitle: detail.game ? detail.game.title : 'Unknown Game',
+                orderId: order.id,
+                date: order.createdAt
+              });
+            });
+          } else if (detail.game_key_id) {
+            // Fallback for cases where gameKeys might not be fully expanded or using old schema
+             allKeys.push({
+                key: detail.game_key_id,
+                gameTitle: detail.game ? detail.game.title : 'Unknown Game',
+                orderId: order.id,
+                date: order.createdAt
+              });
+          }
+        });
+      }
+    });
+
+    document.getElementById('key-count').textContent = allKeys.length;
+
+    // Render Keys
+    const keysContainer = document.getElementById('keys-container');
+    if (allKeys.length > 0) {
+      keysContainer.innerHTML = allKeys.map((item, idx) => `
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4">
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-white text-sm">${item.gameTitle}</p>
+            <p class="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
+              <i data-lucide="calendar" class="h-3 w-3"></i>
+              ${new Date(item.date).toLocaleDateString()}
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2 font-mono text-sm">
+              <span id="key-${idx}" class="text-blue-300 tracking-wider blur-sm select-none">${item.key}</span>
+            </div>
+            <button onclick="toggleKey(${idx})" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors" title="Reveal">
+              <i data-lucide="eye" class="h-4 w-4"></i>
+            </button>
+            <button onclick="copyKey('${item.key}', this)" class="p-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 transition-colors" title="Copy Key">
+              <i data-lucide="copy" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('no-keys').classList.remove('hidden');
+    }
+
+    // Render History
+    const historyContainer = document.getElementById('history-container');
+    if (orders.length > 0) {
+      historyContainer.innerHTML = orders.map(order => `
+        <div class="bg-white/5 border border-white/[0.08] rounded-2xl overflow-hidden">
+          <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b border-white/[0.08] bg-white/[0.03]">
+            <div><p class="text-xs text-gray-500">Order ID</p><p class="font-mono text-sm text-white">#${order.id}</p></div>
+            <div class="text-right"><p class="text-xs text-gray-500">Date</p><p class="text-sm text-white">${new Date(order.createdAt).toLocaleDateString()}</p></div>
+            <div>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${order.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'}">
+                ${order.status === 'completed' ? '✓' : '•'} ${order.status.toUpperCase()}
+              </span>
+            </div>
+            <div class="text-right"><p class="text-xs text-gray-500">Total</p><p class="font-bold text-blue-400">฿${Number(order.total_amount).toLocaleString()}</p></div>
+          </div>
+          <div class="divide-y divide-white/5">
+            ${order.orderDetails ? order.orderDetails.map((detail, dIdx) => {
+              const game = detail.game || { title: 'Unknown Game' };
+              const keys = detail.gameKeys || [];
+              const keyValue = keys.length > 0 ? keys.map(k => k.secret_key).join(', ') : (detail.game_key_id || '');
+              const keyId = `hist-key-${order.id}-${dIdx}`;
+              
+              return `
+                <div class="px-6 py-4">
+                  <div class="flex items-center justify-between gap-4 mb-2">
+                    <div>
+                      <p class="font-semibold text-white">${game.title}</p>
+                      <p class="text-xs text-gray-400 mt-0.5">${keys.length || 1} key(s)</p>
+                    </div>
+                    <p class="font-bold text-white">฿${detail.subtotal.toLocaleString()}</p>
+                  </div>
+                  ${keyValue ? `
+                    <div class="space-y-1.5 mt-2">
+                      <div class="flex items-center gap-2 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
+                        <i data-lucide="key" class="h-3 w-3 text-blue-400 shrink-0"></i>
+                        <span id="${keyId}" class="font-mono text-xs text-blue-300 tracking-wider blur-sm select-none flex-1">${keyValue}</span>
+                        <button onclick="toggleHistKey('${keyId}')" class="p-1 rounded text-gray-400 hover:text-white transition-colors" title="Show Key">
+                          <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                        </button>
+                        <button onclick="copyKey('${keyValue}', this)" class="p-1 rounded text-blue-400 hover:text-blue-300 transition-colors" title="Copy">
+                          <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+                        </button>
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('') : ''}
+          </div>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('no-history').classList.remove('hidden');
+    }
+
+    lucide.createIcons();
+  } catch (err) {
+    console.error('Profile data error:', err);
+    document.getElementById('profile-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <i data-lucide="alert-circle" class="h-12 w-12 mx-auto mb-2"></i>
+        <p>Failed to load profile data.</p>
+        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-white/10 rounded-lg text-white">Retry</button>
+      </div>
+    `;
+    lucide.createIcons();
+  }
+});
+</script>
+<% } %>

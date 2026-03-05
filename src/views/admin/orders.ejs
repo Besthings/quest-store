@@ -1,0 +1,258 @@
+<div id="admin-orders-loading" class="min-h-[60vh] flex items-center justify-center">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 animate-pulse">Loading orders list...</p>
+  </div>
+</div>
+
+<div id="admin-orders-content" class="space-y-6 hidden">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+      <i data-lucide="shopping-bag" class="h-6 w-6 text-blue-400"></i> All Orders
+    </h1>
+    <div class="text-right">
+      <p class="text-xs text-gray-500">Total Revenue</p>
+      <p id="total-revenue" class="text-lg font-black text-green-400">฿0</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-4 space-y-3">
+    <div class="flex flex-wrap gap-3">
+      <div class="flex items-center gap-2 bg-white/5 border border-white/[0.08] rounded-xl px-3 py-2 flex-1 min-w-[200px]">
+        <i data-lucide="search" class="h-4 w-4 text-gray-500 shrink-0"></i>
+        <input id="order-search" placeholder="Search by order ID, customer..."
+               oninput="filterOrders()"
+               class="bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none w-full" style="background:transparent !important" />
+      </div>
+      <select id="order-status-filter" onchange="filterOrders()"
+              class="bg-white/5 border border-white/[0.08] rounded-xl px-3 py-2 text-white text-sm focus:outline-none appearance-none">
+        <option value="all">All Status</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="rounded-xl border border-white/[0.08] bg-white/5 overflow-hidden shadow-2xl">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-white/[0.08] bg-white/[0.02]">
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Order ID</th>
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Customer</th>
+          <th class="text-left text-gray-400 text-xs uppercase px-5 py-4">Date</th>
+          <th class="text-center text-gray-400 text-xs uppercase px-5 py-4">Items</th>
+          <th class="text-center text-gray-400 text-xs uppercase px-5 py-4">Status</th>
+          <th class="text-right text-gray-400 text-xs uppercase px-5 py-4">Total</th>
+          <th class="text-center text-gray-400 text-xs uppercase px-5 py-4">View</th>
+        </tr>
+      </thead>
+      <tbody id="orders-tbody" class="divide-y divide-white/5">
+        <!-- Orders injected here -->
+      </tbody>
+    </table>
+    <!-- Pagination Container -->
+    <div id="orders-pagination" class="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-white/[0.08] bg-black/20 gap-4 hidden">
+      <span id="orders-page-info" class="text-xs text-gray-400 font-medium"></span>
+      <div id="orders-page-buttons" class="flex gap-1.5 overflow-x-auto pb-1 max-w-full"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Simple Detail Modal -->
+<div id="order-modal" class="fixed inset-0 z-50 hidden">
+  <div class="fixed inset-0 bg-black/80 backdrop-blur-sm" onclick="closeOrderModal()"></div>
+  <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="bg-modal border border-white/10 rounded-2xl p-6 max-w-2xl w-full relative shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-white/5 pb-4">
+        <h3 class="text-white font-black text-xl">Order #<span id="order-id-display"></span></h3>
+        <button onclick="closeOrderModal()" class="text-gray-500 hover:text-white"><i data-lucide="x" class="h-6 w-6"></i></button>
+      </div>
+      <div id="order-details-body" class="max-h-[60vh] overflow-y-auto space-y-4 pr-2">
+      </div>
+      <div class="pt-4 border-t border-white/5 flex justify-end">
+         <button onclick="closeOrderModal()" class="px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allOrders = [];
+let ordersPerPage = 10;
+let ordersCurrentPage = 1;
+
+function renderOrders(orders) {
+  const tbody = document.getElementById('orders-tbody');
+  const totalPages = Math.max(1, Math.ceil(orders.length / ordersPerPage));
+  if (ordersCurrentPage > totalPages) ordersCurrentPage = totalPages;
+  
+  const start = (ordersCurrentPage - 1) * ordersPerPage;
+  const end = start + ordersPerPage;
+  const paginated = orders.slice(start, end);
+
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-16 text-sm">No orders found</td></tr>';
+    document.getElementById('orders-pagination').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('orders-pagination').classList.remove('hidden');
+
+  tbody.innerHTML = paginated.map(order => {
+    const statusClass = order.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20'
+         : order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+         : 'bg-red-500/10 text-red-400 border-red-500/20';
+    
+    return `
+      <tr class="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
+        <td class="font-mono text-xs text-gray-400 px-5 py-4">#${order.id}</td>
+        <td class="px-5 py-4">
+          <p class="text-white text-sm font-medium">${order.user ? order.user.username : 'Unknown'}</p>
+          <p class="text-gray-500 text-xs">${order.user ? order.user.email : ''}</p>
+        </td>
+        <td class="text-gray-300 text-sm px-5 py-4">${new Date(order.createdAt).toLocaleDateString()}</td>
+        <td class="text-center text-gray-300 text-sm px-5 py-4">${order.orderDetails ? order.orderDetails.length : 0}</td>
+        <td class="text-center px-5 py-4">
+          <span class="text-[10px] capitalize px-2 py-0.5 rounded-full border font-bold ${statusClass}">${order.status}</span>
+        </td>
+        <td class="text-right font-bold text-blue-400 px-5 py-4">฿${Number(order.total_amount || 0).toLocaleString()}</td>
+        <td class="text-center px-5 py-4">
+          <button onclick="viewOrderDetails('${order.id}')"
+                  class="p-2 rounded-lg text-blue-400 hover:bg-blue-900/20 transition-all hover:scale-110">
+            <i data-lucide="eye" class="h-4 w-4"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
+  renderPagination(orders.length);
+  lucide.createIcons();
+}
+
+function renderPagination(totalOrders) {
+  const info = document.getElementById('orders-page-info');
+  const btnContainer = document.getElementById('orders-page-buttons');
+  const totalPages = Math.max(1, Math.ceil(totalOrders / ordersPerPage));
+
+  info.textContent = `Page ${ordersCurrentPage} of ${totalPages} (${totalOrders} total)`;
+
+  let html = '';
+  html += `<button onclick="goOrdersPage(${Math.max(1, ordersCurrentPage - 1)})" class="px-2.5 py-1 rounded-lg text-xs ${ordersCurrentPage <= 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${ordersCurrentPage <= 1 ? 'disabled' : ''}>Prev</button>`;
+
+  const startP = Math.max(1, ordersCurrentPage - 2);
+  const endP = Math.min(totalPages, startP + 4);
+  
+  for (let p = startP; p <= endP; p++) {
+    if (p === ordersCurrentPage) {
+      html += `<button class="px-2.5 py-1 rounded-lg text-xs bg-blue-600 text-white font-bold">${p}</button>`;
+    } else {
+      html += `<button onclick="goOrdersPage(${p})" class="px-2.5 py-1 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/10">${p}</button>`;
+    }
+  }
+
+  html += `<button onclick="goOrdersPage(${Math.min(totalPages, ordersCurrentPage + 1)})" class="px-2.5 py-1 rounded-lg text-xs ${ordersCurrentPage >= totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}" ${ordersCurrentPage >= totalPages ? 'disabled' : ''}>Next</button>`;
+  btnContainer.innerHTML = html;
+}
+
+function goOrdersPage(p) {
+  ordersCurrentPage = p;
+  filterOrders();
+}
+
+function updateStats(orders) {
+  const revenue = orders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+  document.getElementById('total-revenue').textContent = `฿${revenue.toLocaleString()}`;
+}
+
+function filterOrders() {
+  const q = document.getElementById('order-search').value.toLowerCase();
+  const status = document.getElementById('order-status-filter').value;
+  
+  const filtered = allOrders.filter(order => {
+    const searchStr = `${order.id} ${order.user ? order.user.username + ' ' + order.user.email : ''}`.toLowerCase();
+    const matchSearch = !q || searchStr.includes(q);
+    const matchStatus = status === 'all' || order.status === status;
+    return matchSearch && matchStatus;
+  });
+
+  renderOrders(filtered);
+}
+
+function viewOrderDetails(id) {
+  const order = allOrders.find(o => String(o.id) === String(id));
+  if (!order) return;
+
+  document.getElementById('order-id-display').textContent = order.id;
+  const body = document.getElementById('order-details-body');
+  
+  let html = `
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white/5 p-4 rounded-xl">
+        <p class="text-xs text-gray-500 uppercase font-bold mb-1">Customer</p>
+        <p class="text-white font-bold">${order.user ? order.user.username : 'Unknown'}</p>
+        <p class="text-gray-400 text-sm">${order.user ? order.user.email : '-'}</p>
+      </div>
+      <div class="bg-white/5 p-4 rounded-xl">
+        <p class="text-xs text-gray-500 uppercase font-bold mb-1">Status & Date</p>
+        <p class="text-white font-bold">${order.status.toUpperCase()}</p>
+        <p class="text-gray-400 text-sm">${new Date(order.createdAt).toLocaleString()}</p>
+      </div>
+    </div>
+    <div class="space-y-3 mt-4">
+      <p class="text-xs text-gray-500 uppercase font-bold px-1">Order Items</p>
+      ${order.orderDetails.map(item => `
+        <div class="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+          <div class="w-12 h-16 bg-gray-800 rounded-lg overflow-hidden shrink-0">
+             <img src="${item.game ? item.game.image_url : '/images/arcraider.jpg'}" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-bold truncate">${item.game ? item.game.title : 'Deleted Game'}</p>
+            <p class="text-xs text-blue-400">฿${Number(item.subtotal).toLocaleString()}</p>
+          </div>
+          <div class="text-right">
+             <p class="text-[10px] text-gray-500">Key ID</p>
+             <p class="text-xs font-mono text-gray-300">#${item.game_key_id || 'N/A'}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="flex justify-between items-center bg-blue-600/10 border border-blue-500/20 p-4 rounded-xl mt-4">
+       <span class="text-white font-bold">Total Amount</span>
+       <span class="text-xl font-black text-blue-400">฿${Number(order.total_amount).toLocaleString()}</span>
+    </div>
+  `;
+  
+  body.innerHTML = html;
+  document.getElementById('order-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal').classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await axios.get('/api/orders?limit=1000');
+    allOrders = res.data.data ? res.data.data : (res.data || []);
+
+    document.getElementById('admin-orders-loading').classList.add('hidden');
+    document.getElementById('admin-orders-content').classList.remove('hidden');
+
+    updateStats(allOrders);
+    renderOrders(allOrders);
+  } catch (err) {
+    console.error('Failed to load orders:', err);
+    document.getElementById('admin-orders-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <p>Failed to load orders list. Please try again.</p>
+      </div>
+    `;
+  }
+});
+</script>

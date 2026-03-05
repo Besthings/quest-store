@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans Thai', 'Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Axios Configuration for Backend API -->
+  <script>
+    // Configure Axios base URL to point to Backend API
+    axios.defaults.baseURL = '<%= process.env.BACKEND_URL || "http://localhost:3010" %>';
+    axios.defaults.withCredentials = true; // Allow cookies for auth
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <script>
+    (function() {
+      var t = localStorage.getItem('qs-theme');
+      if (!t) { t = 'dark'; localStorage.setItem('qs-theme', 'dark'); }
+      document.documentElement.className = t;
+    })();
+  </script>
+</head>
+<body class="bg-body text-body font-sans min-h-screen flex flex-col transition-colors duration-300">
+
+  <% if (page !== 'cart' && page !== 'checkout') { %>
+    <%- include('partials/header') %>
+  <% } %>
+
+  <main class="flex-1">
+    <%- body %>
+  </main>
+
+  <% if (page !== 'cart' && page !== 'checkout') { %>
+    <%- include('partials/footer') %>
+  <% } %>
+
+  <!-- Cart Drawer -->
+  <div id="cart-drawer-overlay" class="fixed inset-0 z-[998] hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCartDrawer()"></div>
+    <aside id="cart-drawer" class="absolute top-0 right-0 h-full w-full max-w-sm flex flex-col border-l shadow-2xl cart-drawer-slide" style="background:var(--bg-modal);border-color:var(--border-card)">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-4 border-b" style="border-color:var(--border-card)">
+        <h2 class="text-lg font-bold text-body flex items-center gap-2">
+          <i data-lucide="shopping-cart" class="h-5 w-5 text-blue-400"></i> My Cart
+        </h2>
+        <button onclick="closeCartDrawer()" class="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-body">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+      <!-- Items -->
+      <div id="cart-drawer-body" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div class="flex items-center justify-center py-16"><i data-lucide="loader-2" class="h-6 w-6 animate-spin text-blue-400"></i></div>
+      </div>
+      <!-- Footer -->
+      <div id="cart-drawer-footer" class="p-4 border-t space-y-3" style="border-color:var(--border-card)">
+        <div class="flex items-center justify-between text-sm font-semibold">
+          <span class="text-gray-400">Subtotal</span>
+          <span class="text-body" id="cart-drawer-subtotal">฿0</span>
+        </div>
+        <a href="/cart" class="block w-full py-3 rounded-xl font-bold text-sm text-center bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 transition-all" style="color:white">
+          Go to Cart
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Quick View Modal -->
+  <div id="quick-view-modal" class="fixed inset-0 z-[999] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeQuickView()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="relative border border-white/10 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl" id="quick-view-content" style="background:var(--bg-modal)">
+        <button onclick="closeQuickView()" class="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+        <div id="quick-view-body" class="p-6">
+          <div class="flex items-center justify-center py-16">
+            <i data-lucide="loader-2" class="h-8 w-8 text-blue-400 animate-spin"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Scripts -->
+  <script src="/js/toast.js"></script>
+  <script src="/js/app.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

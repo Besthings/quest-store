@@ -1,0 +1,376 @@
+<div id="admin-dashboard-loading" class="min-h-[60vh] flex items-center justify-center print:hidden">
+  <div class="text-center space-y-4">
+    <i data-lucide="loader-2" class="h-12 w-12 text-blue-500 animate-spin mx-auto"></i>
+    <p class="text-gray-400 animate-pulse">Loading dashboard statistics...</p>
+  </div>
+</div>
+
+<div id="admin-dashboard-content" class="space-y-8 hidden dashboard-container">
+
+  <style>
+  @media print {
+    html, body {
+      height: auto !important;
+      overflow: visible !important;
+      background: white !important;
+      color: black !important;
+    }
+
+    #admin-shell,
+    .admin-shell,
+    #admin-shell > div,
+    .print-main-view,
+    .admin-content,
+    .dashboard-container {
+      display: block !important;
+      height: auto !important;
+      overflow: visible !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    #admin-sidebar,
+    #admin-sidebar *,
+    #admin-mobile-overlay,
+    #admin-mobile-overlay *,
+    #admin-mobile-overlay aside,
+    .admin-topbar,
+    .admin-topbar *,
+    aside[class*="sidebar"],
+    .print\:hidden,
+    .hide-on-print {
+      display: none !important;
+    }
+
+    .dashboard-container,
+    .dashboard-container * {
+      color: #000 !important;
+      text-shadow: none !important;
+    }
+
+    .dashboard-container .bg-white\/5,
+    .dashboard-container .bg-white\/\[0\.02\],
+    .dashboard-container .bg-white\/\[0\.03\],
+    .dashboard-container .bg-blue-900\/20 {
+      background: #fff !important;
+    }
+
+    .dashboard-container .border-white\/\[0\.08\],
+    .dashboard-container .border-blue-500\/20,
+    .dashboard-container .border-purple-500\/20,
+    .dashboard-container .border-green-500\/20,
+    .dashboard-container .border-orange-500\/20 {
+      border-color: #ccc !important;
+    }
+
+    .dashboard-container a {
+      text-decoration: none !important;
+    }
+
+    #dashboard-screen-view { display: none !important; }
+    #dashboard-print-container { display: block !important; }
+  }
+  </style>
+
+  <!-- Screen Header -->
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 print:hidden hide-on-print">
+    <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
+    <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm text-white font-medium transition-colors">
+      <i data-lucide="printer" class="h-4 w-4"></i> Print / Export
+    </button>
+  </div>
+
+  <!-- ═══ SCREEN VIEW ═══ -->
+  <div id="dashboard-screen-view" class="space-y-8 print:hidden hide-on-print">
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="rounded-2xl border border-blue-500/20 bg-white/5 p-5">
+      <div class="flex items-start justify-between mb-3">
+        <p class="text-sm text-gray-400">Total Users</p>
+        <div class="p-2 rounded-lg bg-blue-500/10"><i data-lucide="users" class="h-4 w-4 text-blue-400"></i></div>
+      </div>
+      <p id="stat-users" class="text-2xl font-black text-white">0</p>
+      <p id="stat-admins" class="text-xs text-gray-500 mt-1">0 admin(s)</p>
+    </div>
+    <div class="rounded-2xl border border-purple-500/20 bg-white/5 p-5">
+      <div class="flex items-start justify-between mb-3">
+        <p class="text-sm text-gray-400">Total Games</p>
+        <div class="p-2 rounded-lg bg-purple-500/10"><i data-lucide="gamepad-2" class="h-4 w-4 text-purple-400"></i></div>
+      </div>
+      <p id="stat-games" class="text-2xl font-black text-white">0</p>
+      <p id="stat-keys" class="text-xs text-gray-500 mt-1">0 keys in stock</p>
+    </div>
+    <div class="rounded-2xl border border-green-500/20 bg-white/5 p-5">
+      <div class="flex items-start justify-between mb-3">
+        <p class="text-sm text-gray-400">Total Orders</p>
+        <div class="p-2 rounded-lg bg-green-500/10"><i data-lucide="shopping-bag" class="h-4 w-4 text-green-400"></i></div>
+      </div>
+      <p id="stat-orders" class="text-2xl font-black text-white">0</p>
+      <p class="text-xs text-gray-500 mt-1">Lifetime Volume</p>
+    </div>
+    <div class="rounded-2xl border border-orange-500/20 bg-white/5 p-5">
+      <div class="flex items-start justify-between mb-3">
+        <p class="text-sm text-gray-400">Total Revenue</p>
+        <div class="p-2 rounded-lg bg-orange-500/10"><i data-lucide="dollar-sign" class="h-4 w-4 text-orange-400"></i></div>
+      </div>
+      <p id="stat-revenue" class="text-2xl font-black text-white">฿0</p>
+      <p class="text-xs text-gray-500 mt-1">Across all sales</p>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Game Popularity -->
+    <div class="bg-white/5 border border-white/[0.08] rounded-2xl p-6">
+      <h2 class="text-white text-base font-bold mb-4 flex items-center gap-2">
+        <i data-lucide="trending-up" class="h-4 w-4 text-blue-400"></i> Top Game Sales
+      </h2>
+      <div id="popularity-container" class="space-y-4">
+        <!-- Popularity injected here -->
+      </div>
+      <div id="no-popularity" class="h-[200px] flex items-center justify-center text-gray-500 text-sm italic hidden">
+        No sales data yet
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white/5 border border-white/[0.08] rounded-2xl overflow-hidden shadow-xl">
+      <div class="px-5 py-4 border-b border-white/[0.08] bg-white/[0.02]">
+        <h2 class="text-white text-base font-bold flex items-center gap-2"><i data-lucide="clock" class="h-4 w-4 text-purple-400"></i> Recent Orders</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-white/[0.08] bg-white/[0.01]">
+              <th class="text-left text-gray-400 text-[10px] uppercase tracking-wider px-5 py-3 font-black">Order ID</th>
+              <th class="text-left text-gray-400 text-[10px] uppercase tracking-wider px-5 py-3 font-black">Customer</th>
+              <th class="text-left text-gray-400 text-[10px] uppercase tracking-wider px-5 py-3 font-black">Status</th>
+              <th class="text-right text-gray-400 text-[10px] uppercase tracking-wider px-5 py-3 font-black">Total</th>
+            </tr>
+          </thead>
+          <tbody id="recent-orders-body" class="divide-y divide-white/5">
+            <!-- Orders injected here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  </div> <!-- end #dashboard-screen-view -->
+
+  <!-- ═══ PRINT LAYOUT ═══ -->
+  <div id="dashboard-print-container" class="hidden print:block text-black">
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const [usersRes, gamesRes, ordersRes] = await Promise.all([
+      axios.get('/api/users?limit=1000'),
+      axios.get('/api/games?limit=1000'),
+      axios.get('/api/orders?limit=1000')
+    ]);
+
+    const users = usersRes.data.data ? usersRes.data.data : (usersRes.data || []);
+    const games = gamesRes.data.data ? gamesRes.data.data : (gamesRes.data || []);
+    const orders = ordersRes.data.data ? ordersRes.data.data : (ordersRes.data || []);
+
+    // Basic Stats
+    const totalUsers = users.filter(u => u.role === 'user').length;
+    const totalAdmins = users.filter(u => u.role === 'admin').length;
+    const totalGames = games.length;
+    const totalKeys = games.reduce((s, g) => s + (g.keys ? g.keys.filter(k => !k.is_sold).length : 0), 0);
+    const totalRevenue = orders.reduce((s, o) => s + Number(o.total_amount || 0), 0);
+
+    document.getElementById('stat-users').textContent = totalUsers;
+    document.getElementById('stat-admins').textContent = `${totalAdmins} admin(s)`;
+    document.getElementById('stat-games').textContent = totalGames;
+    document.getElementById('stat-keys').textContent = `${totalKeys} keys in stock`;
+    document.getElementById('stat-orders').textContent = orders.length;
+    document.getElementById('stat-revenue').textContent = `฿${totalRevenue.toLocaleString()}`;
+
+    // Game Popularity
+    const salesMap = {};
+    orders.forEach(o => {
+      if (o.orderDetails) {
+        o.orderDetails.forEach(d => {
+          const title = d.game ? d.game.title : 'Unknown';
+          salesMap[title] = (salesMap[title] || 0) + 1;
+        });
+      }
+    });
+
+    const popularity = Object.keys(salesMap).map(k => ({ name: k, value: salesMap[k] }))
+      .sort((a, b) => b.value - a.value).slice(0, 5);
+    const maxPop = popularity.length ? popularity[0].value : 1;
+    const popColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
+
+    const popContainer = document.getElementById('popularity-container');
+    if (popularity.length > 0) {
+      popContainer.innerHTML = popularity.map((gp, i) => `
+        <div>
+          <div class="flex justify-between text-xs mb-1.5">
+            <span class="text-gray-300 font-medium truncate max-w-[200px]">${gp.name}</span>
+            <span class="text-gray-400 font-bold">${gp.value} sold</span>
+          </div>
+          <div class="h-2.5 bg-white/5 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-1000" style="width:${(gp.value / maxPop * 100)}%;background:${popColors[i % popColors.length]}"></div>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('no-popularity').classList.remove('hidden');
+    }
+
+    // Recent Orders
+    const recentOrders = orders.slice(0, 8);
+    const ordersBody = document.getElementById('recent-orders-body');
+    if (recentOrders.length > 0) {
+      ordersBody.innerHTML = recentOrders.map(o => `
+        <tr class="hover:bg-white/[0.03] transition-colors">
+          <td class="font-mono text-[11px] text-gray-400 px-5 py-3">#${o.id}</td>
+          <td class="text-white text-xs px-5 py-3">
+            <div class="flex items-center gap-2">
+              <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(o.user ? o.user.username : 'U')}&background=1d4ed8&color=fff" class="w-5 h-5 rounded-full" />
+              <span class="truncate max-w-[100px]">${o.user ? o.user.username : 'Unknown'}</span>
+            </div>
+          </td>
+          <td class="px-5 py-3">
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${o.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'}">
+              ${o.status.toUpperCase()}
+            </span>
+          </td>
+          <td class="text-right text-white font-bold text-xs px-5 py-3">฿${Number(o.total_amount || 0).toLocaleString()}</td>
+        </tr>
+      `).join('');
+    } else {
+      ordersBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 text-sm py-12">No orders recorded yet.</td></tr>';
+    }
+
+    // Build Print Layout
+    renderDashboardPrint({ totalUsers, totalAdmins, totalGames, totalKeys, totalRevenue, orders, popularity });
+
+    // Done
+    document.getElementById('admin-dashboard-loading').classList.add('hidden');
+    document.getElementById('admin-dashboard-content').classList.remove('hidden');
+    lucide.createIcons();
+  } catch (err) {
+    console.error('Admin dashboard error:', err);
+    document.getElementById('admin-dashboard-loading').innerHTML = `
+      <div class="text-center text-red-500">
+        <p>Failed to load dashboard data. Please check your connection.</p>
+      </div>
+    `;
+  }
+});
+
+function renderDashboardPrint(data) {
+  const container = document.getElementById('dashboard-print-container');
+  if (!container) return;
+
+  const generateDate = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  const completedOrders = data.orders.filter(o => o.status === 'completed');
+  const pendingOrders = data.orders.filter(o => o.status !== 'completed');
+  const recentOrders = data.orders.slice(0, 15);
+
+  let html = `
+    <div>
+      <div class="text-center mb-6 border-b-2 border-black pb-4">
+        <h2 class="text-3xl font-black">QUEST STORE</h2>
+        <p class="text-lg font-bold mt-1">Dashboard Summary Report</p>
+        <p class="text-gray-600 text-sm mt-1">Generated: ${generateDate}</p>
+      </div>
+
+      <div class="mb-8">
+        <h3 class="text-base font-black border-b-2 border-black pb-2 mb-4">Overview Statistics</h3>
+        <table class="w-full border-collapse text-sm mb-4">
+          <tbody>
+            <tr class="border-b border-gray-300">
+              <td class="py-2 px-3 font-bold w-1/2">Total Users</td>
+              <td class="py-2 px-3 text-right">${data.totalUsers}</td>
+              <td class="py-2 px-3 font-bold w-1/2">Total Admins</td>
+              <td class="py-2 px-3 text-right">${data.totalAdmins}</td>
+            </tr>
+            <tr class="border-b border-gray-300">
+              <td class="py-2 px-3 font-bold">Total Games</td>
+              <td class="py-2 px-3 text-right">${data.totalGames}</td>
+              <td class="py-2 px-3 font-bold">Keys in Stock</td>
+              <td class="py-2 px-3 text-right">${data.totalKeys}</td>
+            </tr>
+            <tr class="border-b border-gray-300">
+              <td class="py-2 px-3 font-bold">Total Orders</td>
+              <td class="py-2 px-3 text-right">${data.orders.length}</td>
+              <td class="py-2 px-3 font-bold">Total Revenue</td>
+              <td class="py-2 px-3 text-right font-black">฿${data.totalRevenue.toLocaleString()}</td>
+            </tr>
+            <tr class="border-b border-gray-300">
+              <td class="py-2 px-3 font-bold">Completed Orders</td>
+              <td class="py-2 px-3 text-right">${completedOrders.length}</td>
+              <td class="py-2 px-3 font-bold">Pending Orders</td>
+              <td class="py-2 px-3 text-right">${pendingOrders.length}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mb-8">
+        <h3 class="text-base font-black border-b-2 border-black pb-2 mb-4">Top Game Sales</h3>
+        ${data.popularity.length > 0 ? `
+        <table class="w-full border-collapse text-sm">
+          <thead>
+            <tr class="border-b-2 border-black">
+              <th class="text-left py-2 px-3 w-8">#</th>
+              <th class="text-left py-2 px-3">Game Title</th>
+              <th class="text-right py-2 px-3 w-24">Units Sold</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.popularity.map((gp, i) => `
+            <tr class="border-b border-gray-300 ${i % 2 === 0 ? '' : 'bg-gray-50'}">
+              <td class="py-2 px-3">${i + 1}</td>
+              <td class="py-2 px-3">${gp.name}</td>
+              <td class="text-right py-2 px-3 font-bold">${gp.value}</td>
+            </tr>
+            `).join('')}
+          </tbody>
+        </table>` : '<p class="text-gray-500 text-sm italic">No sales data yet</p>'}
+      </div>
+
+      <div class="mb-8">
+        <h3 class="text-base font-black border-b-2 border-black pb-2 mb-4">Recent Orders (Last ${recentOrders.length})</h3>
+        ${recentOrders.length > 0 ? `
+        <table class="w-full border-collapse text-xs">
+          <thead>
+            <tr class="border-b-2 border-black">
+              <th class="text-left py-2 px-2">Order ID</th>
+              <th class="text-left py-2 px-2">Date</th>
+              <th class="text-left py-2 px-2">Customer</th>
+              <th class="text-left py-2 px-2">Status</th>
+              <th class="text-right py-2 px-2">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${recentOrders.map((o, i) => `
+            <tr class="border-b border-gray-300 ${i % 2 === 0 ? '' : 'bg-gray-50'}">
+              <td class="py-1.5 px-2 font-mono">#${o.id}</td>
+              <td class="py-1.5 px-2 whitespace-nowrap">${o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB') : '—'}</td>
+              <td class="py-1.5 px-2">${o.user ? o.user.username : 'Unknown'}</td>
+              <td class="py-1.5 px-2 font-bold">${o.status ? o.status.toUpperCase() : '—'}</td>
+              <td class="text-right py-1.5 px-2 font-bold">฿${Number(o.total_amount || 0).toLocaleString()}</td>
+            </tr>
+            `).join('')}
+          </tbody>
+        </table>` : '<p class="text-gray-500 text-sm italic">No orders recorded yet.</p>'}
+      </div>
+
+      <div class="mt-auto pt-4 border-t border-gray-300 text-center text-xs text-gray-500">
+        This report was generated securely by the Quest Store Admin System.
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+</script>

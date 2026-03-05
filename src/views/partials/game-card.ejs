@@ -1,0 +1,50 @@
+<%
+  var dp = game.discount ? Math.round(game.price * (1 - game.discount / 100)) : game.price;
+  var stock = game.stock_quantity || 0;
+%>
+<a href="/game/<%= game.id %>" class="group relative flex flex-col bg-white/5 border border-white/[0.08] rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-900/20 transition-all duration-300">
+  <!-- Cover -->
+  <div class="relative aspect-[16/10] overflow-hidden">
+    <img src="<%= game.image_url || '/images/arcraider.jpg' %>" alt="<%= game.title %>"
+         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+         loading="lazy" />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+    <!-- Quick View -->
+    <button onclick="event.preventDefault();event.stopPropagation();openQuickView('<%= game.id %>')"
+            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-4 py-2 rounded-full border border-white/30 hover:bg-white/30 transition-colors">
+        <i data-lucide="eye" class="h-3.5 w-3.5"></i> Quick View
+      </span>
+    </button>
+    <!-- Stock badge -->
+    <div class="absolute bottom-2 right-2">
+      <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-sm <%= stock > 0 ? 'bg-green-900/70 text-green-400' : 'bg-red-900/70 text-red-400' %>">
+        <%= stock > 0 ? stock + ' in stock' : 'SOLD OUT' %>
+      </span>
+    </div>
+  </div>
+  <!-- Info -->
+  <div class="flex flex-col flex-1 p-4 gap-3">
+    <h3 class="font-semibold text-white text-sm line-clamp-1 group-hover:text-blue-300 transition-colors"><%= game.title %></h3>
+    <div class="mt-auto flex items-center justify-between">
+      <div>
+        <% if (game.discount) { %>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-white font-bold">฿<%= dp.toLocaleString() %></span>
+            <span class="text-gray-500 text-xs line-through">฿<%= game.price.toLocaleString() %></span>
+          </div>
+        <% } else { %>
+          <span class="text-white font-bold">฿<%= game.price.toLocaleString() %></span>
+        <% } %>
+      </div>
+      <button onclick="event.preventDefault();addToCart('<%= game.id %>')"
+              <%= stock === 0 ? 'disabled' : '' %>
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all <%= stock > 0
+                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-500/30'
+                : 'bg-gray-800 text-gray-600 cursor-not-allowed' %>">
+        <i data-lucide="shopping-cart" class="h-3.5 w-3.5"></i>
+        <%= stock > 0 ? 'Add' : 'Sold Out' %>
+      </button>
+    </div>
+  </div>
+</a>
