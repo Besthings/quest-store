@@ -11,19 +11,16 @@ const {
 } = require('../../controllers/categoriesController');
 const { getGamesByCategory } = require('../../controllers/categoriesController');
 
+const { authenticate, authorize } = require('../../middleware/authMiddleware');
 
 router.get('/', getAllCategories);
-
-router.get('/:slug', getGameBySlug);
-
 router.get('/:id', getCategoryById);
-
+router.get('/:slug', getGameBySlug);
 router.get('/:id/games', getGamesByCategory);
 
-router.post('/', createCategory);
-
-router.put('/:id', updateCategory);
-
-router.delete('/:id', deleteCategory);
+// Admin-only routes
+router.post('/', authenticate, authorize('admin'), createCategory);
+router.put('/:id', authenticate, authorize('admin'), updateCategory);
+router.delete('/:id', authenticate, authorize('admin'), deleteCategory);
 
 module.exports = router;
